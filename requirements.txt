@@ -1,0 +1,8 @@
+matplotlib==3.5.2
+numpy==1.22.4
+pycm==3.5
+scikit_learn==1.1.1
+scipy==1.8.1
+tensorflow==2.9.1
+tensorflow_probability==0.17.0
+
