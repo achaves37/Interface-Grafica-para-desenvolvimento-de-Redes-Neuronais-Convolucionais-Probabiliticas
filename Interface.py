@@ -2,16 +2,15 @@ from tkinter import *
 from tkinter import ttk
 import sys
 import os
+from os import path
 import tensorflow_probability as tfp
 import tensorflow as tf
+import tensorflow.compat.v2 as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import MaxPooling1D, MaxPooling2D, Dropout, Flatten
+from tensorflow.keras.layers import MaxPooling1D, MaxPooling2D, Dropout, Flatten, Conv2D, Dense
 from tensorflow.keras.utils import to_categorical
 from sklearn.utils import class_weight
-tfd = tfp.distributions
-tfpl = tfp.layers
 import scipy.io as spio
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from pycm import *
@@ -20,195 +19,354 @@ import gc
 # importing the library to save the results
 import pickle
 # importing the library to check the dataset files
-from os import path
-import pickle 
 import csv
 import matplotlib.pyplot as plt
-import os
 import warnings
 import numpy as np
-import tensorflow.compat.v2 as tf
-import tensorflow_probability as tfp
-import pickle
 from scipy.io import savemat
 from pycm import *
-from tensorflow.keras.layers import Conv2D, Dense, Flatten, Dropout
-from RunModel2d import *
-from RunModel1d import *
-from RunEditModel2d import *
-
-#----------------------    Funções --------------------- 
-
-#---- Ver informações sobre -----------
-def semComando():
-    hide_all_frames()
-    frame_menuSobre.grid()
-
-#---- Ver videos FAQ -----------
- 
-def verversao():
-    hide_all_frames()
-    frame_verversao.grid()
-    
-    
-    
-def runmodel_lenet_2d_call():
-    runmodel_lenet_2d(learning_rate = float(texto_ins22d.get()),
-                       batch_size = int(texto_ins42d.get()),
-                       num_epochs = int(texto_ins52d.get()),
-                       PATIENCE = int(texto_ins62d.get()),
-                       num_monte_carlo = int(texto_ins72d.get())
-                       )  
-    return
+from Results import *
+from RunModel import *
+from sklearn.metrics import mean_squared_error
+tfd = tfp.distributions
+tfpl = tfp.layers
+import webbrowser
 
 
+#-------------------------- Saves parameters --------------------------------   
+
+#------------------ Save parameters 1 dimension Lenet-AlexNet-Edit-------------
 def runmodel_lenet_1d_call():
     runmodel_lenet_1d(SAMPLING_FREQ = int(texto_ins1.get()),
                        EXAMINE_AVERAGE= int(texto_ins2.get()),
                        THRESHOLD_EARLY_STOPING = float(texto_ins4.get()),
                        BATCH_SIZE = int(texto_ins5.get()),
                        NUMBER_EPOCHS = int(texto_ins6.get()),
-                       PATIENCE_VALUE = int(texto_ins7.get())
+                       PATIENCE_VALUE = int(texto_ins7.get()),
+                       classes = int(texto_ins8.get())
+                       )
+    return
+def alexnet_resultado_generic1_call():
+    runmodel_alexnet(SAMPLING_FREQ = int(texto_ins1.get()),
+                       EXAMINE_AVERAGE= int(texto_ins2.get()),
+                       THRESHOLD_EARLY_STOPING = float(texto_ins4.get()),
+                       BATCH_SIZE = int(texto_ins5.get()),
+                       NUMBER_EPOCHS = int(texto_ins6.get()),
+                       PATIENCE_VALUE = int(texto_ins7.get()),
+                       classes = int(texto_ins8.get())
+                       )
+    return
+def runmodel_edit_1d_call():
+    runmodel_lenet_1d_edit(SAMPLING_FREQ = int(texto_ins1.get()),
+                       EXAMINE_AVERAGE= int(texto_ins2.get()),
+                       THRESHOLD_EARLY_STOPING = float(texto_ins4.get()),
+                       BATCH_SIZE = int(texto_ins5.get()),
+                       NUMBER_EPOCHS = int(texto_ins6.get()),
+                       PATIENCE_VALUE = int(texto_ins7.get()),
+                       classes = int(texto_ins8.get())
                        )
     return
 
-#------ Function to runmodels Alexnet e Lenet for 2 dimensions ---------------   
- 
-def runmodel_alexlenet_2d_call():
-    runmodel_alexnet_2d(learning_rate = float(texto_ins22d.get()),
-                       batch_size = int(texto_ins42d.get()),
-                       num_epochs = int(texto_ins52d.get()),
-                       PATIENCE = int(texto_ins62d.get()),
-                       num_monte_carlo = int(texto_ins72d.get())
-                       )
-    return    
-    
+
+#------------------ Save parameters 2 dimensions Lenet-AlexNet-Edit-----------
 def runmodel_lenet_2d_call():
     runmodel_lenet_2d(learning_rate = float(texto_ins22d.get()),
                        batch_size = int(texto_ins42d.get()),
                        num_epochs = int(texto_ins52d.get()),
                        PATIENCE = int(texto_ins62d.get()),
-                       num_monte_carlo = int(texto_ins72d.get())
+                       num_monte_carlo = int(texto_ins72d.get()),
+                       inp1 = int(texto_ins82d.get()),
+                       inp2 = int(texto_ins92d.get()),
+                       inp3 = int(texto_ins02d.get()),
+                       classes = int(texto_ins02d1.get())
+                       )  
+    return
+def runmodel_alexlenet_2d_call():
+    runmodel_alexnet_2d(learning_rate = float(texto_ins22d.get()),
+                       batch_size = int(texto_ins42d.get()),
+                       num_epochs = int(texto_ins52d.get()),
+                       PATIENCE = int(texto_ins62d.get()),
+                       num_monte_carlo = int(texto_ins72d.get()),
+                       inp1 = int(texto_ins82d.get()),
+                       inp2 = int(texto_ins92d.get()),
+                       inp3 = int(texto_ins02d.get()),
+                       classes = int(texto_ins02d1.get())
                        )
+    return    
+def runmodel_edit_2d_call():
+    runmodel_lenet2_edit (learning_rate = float(texto_ins22d.get()),
+                         batch_size = int(texto_ins42d.get()),
+                         num_epochs = int(texto_ins52d.get()),
+                         PATIENCE = int(texto_ins62d.get()),
+                         num_monte_carlo = int(texto_ins72d.get()),
+                         inp1 = int(texto_ins82d.get()),
+                         inp2 = int(texto_ins92d.get()),
+                         inp3 = int(texto_ins02d.get()),
+                         classes = int(texto_ins02d1.get())
+                         )  
+    return
+    
+
+
+#------------------ Save parameters Regression Lenet-AlexNet-Edit--------------
+def run_regression_call():
+    run_regression     (EXAMINE_AVERAGE= int(texto_ins72dR.get()),
+                       THRESHOLD_EARLY_STOPING = float(texto_ins22dR.get()),
+                       BATCH_SIZE = int(texto_ins42dR.get()),
+                       NUMBER_EPOCHS = int(texto_ins52dR.get()),
+                       PATIENCE_VALUE = int(texto_ins62dR.get()),
+                       classes = int(texto_ins02d1R1.get()),
+                       inputs = int(texto_ins02d1R.get())
+                       )
+    return
+def run_regression_edit_call():
+    run_regression_edit     (EXAMINE_AVERAGE= int(texto_ins72dR.get()),
+                            THRESHOLD_EARLY_STOPING = float(texto_ins22dR.get()),
+                            BATCH_SIZE = int(texto_ins42dR.get()),
+                            NUMBER_EPOCHS = int(texto_ins52dR.get()),
+                            PATIENCE_VALUE = int(texto_ins62dR.get()),
+                            classes = int(texto_ins02d1R1.get()),
+                            inputs = int(texto_ins02d1R.get())
+                            )
+    return
+def run_regression_call1():
+    run_regression_edit1     (EXAMINE_AVERAGE= int(texto_ins72dR.get()),
+                            THRESHOLD_EARLY_STOPING = float(texto_ins22dR.get()),
+                            BATCH_SIZE = int(texto_ins42dR.get()),
+                            NUMBER_EPOCHS = int(texto_ins52dR.get()),
+                            PATIENCE_VALUE = int(texto_ins62dR.get()),
+                            classes = int(texto_ins02d1R1.get()),
+                            inputs = int(texto_ins02d1R.get())
+                            )
     return
 
 
-#-------- imprime menu informacao ------------------
+#----------------- 1 dimension LeNet show results ----------------------------
+
+def lenet_1d_all_plot_call():
+    lenet_1d_all_plot(result = str(escolhegeneric.get()),
+                                   classes = int(texto_ins22d.get())             
+                                   )
+    return
+def lenet_1d_one_plot_call():
+    lenet_1d_one_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def lenet_1d_print_call():
+    lenet_1d_print(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+
+
+#---------------------- 1 dimension AlexNet show results  ----------------
+
+def alexnet_1d_all_plot_call():
+    alexnet_1d_all_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def alexnet_1d_one_plot_call():
+    alexnet_1d_one_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def alexnet_1d_print_call():
+    alexnet_1d_print(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+
+
+#----------------------- 1 dimension Edit show results ------------------------
+
+def edit_1d_all_plot_call():
+    edit_1d_all_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def edit_1d_one_plot_call():
+    edit_1d_one_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def edit_1d_print_call():
+    edit_1d_print(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+
+
+#---------------------2 dimensions LeNet show results ----------------------------------
+
+def lenet_2d_all_plot_call():
+    lenet_2d_all_plot(result = str(escolhegeneric.get()),
+                                   classes = int(texto_ins22d.get())             
+                                   )
+    return
+def lenet_2d_one_plot_call():
+    lenet_2d_one_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def lenet_2d_print_call():
+    lenet_2d_print(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+
+
+#---------------------- 2 dimensions AlexNet show results ----------
+
+def alexnet_2d_all_plot_call():
+    alexnet_2d_all_plot(result = str(escolhegeneric.get()),
+                        classes = int(texto_ins22d.get())             
+                                )
+    return
+def alexnet_2d_one_plot_call():
+    alexnet_2d_one_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def alexnet_2d_print_call():
+    alexnet_2d_print(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+
+
+#----------------------- 2 dimension Edit show results ------------------------
+
+def edit_2d_all_plot_call():
+    edit_2d_all_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def edit_2d_one_plot_call():
+    edit_2d_one_plot(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+def edit_2d_print_call():
+    edit_2d_print(result = str(escolhegeneric.get()),
+                                classes = int(texto_ins22d.get())             
+                                )
+    return
+               
+
+
+#---- See Separator About -----------
+def semComando():
+    hide_all_frames()
+    frame_menuSobre.grid()
+
+#---- See Separator FAQ -----------
+def verversao():
+    hide_all_frames()
+    frame_verversao.grid()
+
+#-------- See Menu Start 1 dimension ------------------
 def vermenuinformacao():
     hide_all_frames()
     frame_menu_informacao.grid()
-    
+
+#-------- See Menu Start 2 dimensions ------------------    
 def vermenuinformacao1():
     hide_all_frames()
     frame_menu_informacao1.grid()
 
-#------------ imprime menu inserir ------------
+#-------- See Menu Start Regression ------------------        
+def vermenuinformacaoR():
+    hide_all_frames()
+    frame_menu_informacaor.grid()
+
+
+#------------ Aux Function to show menu insert parameters------------
 def menuinserir():
     hide_all_frames()
-    frame_menu_inserir.grid()
-    
+    frame_menu_inserir.grid()  
 def menuinserir2d():
     hide_all_frames()
-    frame_menu_inserir2d.grid()
-    
+    frame_menu_inserir2d.grid()   
 def menuinserir1():
     hide_all_frames()
-    frame_menu_inserir1.grid()
-    
+    frame_menu_inserir1.grid()  
 def menuinserir12d():
     hide_all_frames()
     frame_menu_inserir12d.grid()
-    
+def menuinserir12dR():
+    hide_all_frames()
+    frame_menu_inserir12dR.grid()   
 def menuinserir2():
     hide_all_frames()
-    frame_menu_inserir2.grid()
-    
+    frame_menu_inserir2.grid()  
 def menuinserir2_2d():
     hide_all_frames()
-    frame_menu_inserir2_2d.grid()
-
+    frame_menu_inserir2_2d.grid()    
+def menuinserir2_2dR():
+    hide_all_frames()
+    frame_menu_inserir2_2dR.grid()
 def menuinserir22d():
     hide_all_frames()
-    frame_menu_inserir22d.grid()
-    
+    frame_menu_inserir22d.grid()    
 def menuinserir3():
     hide_all_frames()
-    frame_menu_inserir3.grid()
-    
+    frame_menu_inserir3.grid()   
 def menuinserir32d():
     hide_all_frames()
     frame_menu_inserir3.grid()
 
-#--------------- imprime valores a correr ------------------------
-    
-def escolhemodelo():
-    hide_all_frames()
-    frame_menu_escolhemodelo.grid()
-    escolhemodeloaux()
 
-
-# --------------------   Funções para ver resultados -------------------------
-
-
+# --------------------   Aux Functions to show Frames-------------------------
 def genericresult():
     hide_all_frames()
     frame_menu_vergeneric.grid()
     genericresult_aux()
-    
 def runmodelgeneric1():
     hide_all_frames()
     frame_menu_runmodelgeneric1.grid()
     runmodelgeneric1_aux()
-
-
 def genericresult1():
     hide_all_frames()
     frame_menu_vergeneric1.grid()
-    genericresult1_aux()
-    
+    genericresult1_aux()   
 def genericresult2():
     hide_all_frames()
     frame_menu_vergeneric2.grid()
-    genericresult2_aux()
-    
-
+    genericresult2_aux()  
 def alexnetresult():
     hide_all_frames()
     frame_menu_veralexnet.grid()
-    alexnetresult_aux()
-    
+    alexnetresult_aux()    
 def runmodelalexnet1():
     hide_all_frames()
     frame_menu_runmodelalexnet.grid()
     runmodelalexnet_aux()
+def genericresult_edit():
+    hide_all_frames()
+    frame_menu_veralexnete2.grid()
+    alexnetresult_aux_edit()    
+def genericresult_edit1():
+    hide_all_frames()
+    frame_menu_veralexnete1.grid()
+    alexnetresult_aux_edit1()
+    
     
 
-    
-# --------------------   Funções para editar camadas -------------------------
-def aux1_insere_convolucao():
-    hide_all_frames()
-    frame_menu_convolucao.grid()
-        
-def aux1_insere_pooling():
-    hide_all_frames()
-    frame_menu_pooling.grid()
-
-def aux1_insere_dense():
-    hide_all_frames()
-    frame_menu_dense.grid()
-
-
-#-----------------  Limpa interface ------------------------------------------
-
+#-----------------  Clean Frames ------------------------------------------
 def hide_all_frames():
     frame_menu_informacao.grid_forget()
     frame_menu_informacao1.grid_forget()
     frame_menu_inserir.grid_forget()
     frame_menu_inserir2d.grid_forget()
+    frame_menu_inserir12dR.grid_forget()
     frame_menu_inserir1.grid_forget()
     frame_menu_inserir12d.grid_forget()
     frame_menu_inserir2.grid_forget()
     frame_menu_inserir2_2d.grid_forget()
+    frame_menu_inserir2_2R.grid_forget()
+    frame_menu_inserir2_2dR.grid_forget()
     frame_menu_inserir22d.grid_forget()
     frame_menu_inserir3.grid_forget()
     frame_menu_inserir32d.grid_forget()
@@ -226,9 +384,15 @@ def hide_all_frames():
     frame_menu_dense.grid_forget()
     frame_menu_pooling.grid_forget()
     frame_menu_convolucao.grid_forget()
+    frame_menu_veralexnete2.grid_forget()
+    frame_menu_veralexnete1.grid_forget()
+    frame_menu_informacaor.grid_forget()
     
     
-#--------------------- Insere valores ----------------------------------------
+
+#-------------------------- Confirmation Insert parameters ------------------- 
+
+#------------------------ 1 dimension parametes -------------------------------  
 def Insere():
     SAMPLING_FREQ = int(texto_ins1.get())
     EXAMINE_AVERAGE= int(texto_ins2.get())
@@ -236,447 +400,68 @@ def Insere():
     BATCH_SIZE = int(texto_ins5.get())
     NUMBER_EPOCHS = int(texto_ins6.get())
     PATIENCE_VALUE = int(texto_ins7.get())
+    classes = int(texto_ins8.get())
     print("Parameters entered successfully")
     print("\nThe parameters that you insert are:")
-    print("\nSignals sampling frequency:", SAMPLING_FREQ) 
-    print("Times shoul the algoritm run:", EXAMINE_AVERAGE) 
-    print("Epochs update relevant:", THRESHOLD_EARLY_STOPING) 
+    print("\nInput Frequency:", SAMPLING_FREQ) 
+    print("Monte Carlo value", EXAMINE_AVERAGE) 
+    print("Lerning rate", THRESHOLD_EARLY_STOPING) 
     print("Batch size:", BATCH_SIZE)  
-    print("Maximum number of epoch:", NUMBER_EPOCHS) 
-    print("Value for early stopping:", PATIENCE_VALUE) 
+    print("Maximum number of epoch:", NUMBER_EPOCHS)
+    print("Patience value:", PATIENCE_VALUE) 
+    print("Number of classes:", classes) 
     menuinserir2()
 
+#------------------------ 2 dimensions parametes -----------------------------
 def Insere2d():
     learning_rate = float(texto_ins22d.get())
     batch_size = int(texto_ins42d.get())
     num_epochs = int(texto_ins52d.get())
     PATIENCE = int(texto_ins62d.get())
     num_monte_carlo = int(texto_ins72d.get())
+    inp1 = int(texto_ins82d.get()),
+    inp2 = int(texto_ins92d.get()),
+    inp3 = int(texto_ins02d.get()),
+    classes = int(texto_ins02d1.get())
     print("Parameters entered successfully")
-    print("Epochs update relevant:", learning_rate) 
+    print("Lerning rate", learning_rate) 
     print("Batch size:", batch_size) 
     print("Maximum number of epoch:", num_epochs)  
     print("Value for early stopping:", PATIENCE) 
     print("Monte Carlo value:", num_monte_carlo) 
+    print("Classes:", classes)    
+    print("Input Shape - width:", inp1)  
+    print("Input Shape - height:", inp2) 
+    print("Input Shape - channels:", inp3) 
+    print("Number of classes:", classes)    
     menuinserir2_2d()
-#-------------------   Combobox - Escolha de resultados do modelo AlexNet -------------------------------------------------------------
 
-def genericresult2_aux():
-    box_value3=StringVar()
-    global escolhegeneric
-    escolhegeneric = ttk.Combobox(frame_menu_vergeneric2, textvariable=box_value3, state='readonly')
-    escolhegeneric["values"] = ["Acc-AlexNet MNIST","Auc-AlexNet MNIST","Npv-AlexNet MNIST","Ppv-AlexNet MNIST","Sen-AlexNet MNIST","Spe-AlexNet MNIST"]
-    escolhegeneric.current(0)
-    label0 = Label(frame_menu_vergeneric2, width=25, height=2,
-                  text ="\nAlexNet 2 Dimensions \n", font=('verdana', 10, 'bold'), justify=CENTER)
-    label01 = Label(frame_menu_vergeneric2, width=25, height=2,
-                  text ="\nClick the button to:\n", font=('verdana', 10, 'bold'), justify=CENTER)
-    label02 = Label(frame_menu_vergeneric2, width=25, height=3,
-                  text ="\n\n-> See result of the select value:\n", font=('verdana', 11, 'bold'), justify=CENTER)
-    label1 = Label(frame_menu_vergeneric2, width=25, height=2,
-                  text ="\n\n Select the Result \n", font=('verdana', 10), justify=CENTER)
-    label0.grid(row=0, column=0)
-    label01.grid(row=0, column=1)
-    label02.grid(row=2, column=1)
-    label1.grid(row=2, column=0)
-    escolhegeneric.grid(row=3, column=0)
-    Button(frame_menu_vergeneric2,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=escolhe_resultado2_generic1).grid(row=1, column=1)
-    Button(frame_menu_vergeneric2,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=escolhe_resultado2_generic2).grid(row=3, column=1)
-    Button(frame_menu_vergeneric2,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=escolhe_resultado2_generic).grid(row=4, column=1)
-
-# ----------------------- Imprime os resultados da arquitetura Lenet ---------------
-
-def escolhe_resultado2_generic1():
-        with open('AlexNet2d\AccAlexNet2.txt', 'rb') as handle:
-            a = pickle.load(handle)
-        x = np.array(range(0, 10))
-        y = np.array([a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9]])
-        with open('AlexNet2d\AucAlexNet2.txt', 'rb') as handle1:
-            b = pickle.load(handle1)
-        x = np.array(range(0, 10))
-        y1 = np.array([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9]])       
-        with open(rb'AlexNet2d\NpvAlexNet2.txt', 'rb') as handle2:
-            c = pickle.load(handle2)
-        x = np.array(range(0, 10))
-        y2 = np.array([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9]])       
-        with open('AlexNet2d\PpvAlexNet2.txt', 'rb') as handle3:
-            d = pickle.load(handle3)
-        x = np.array(range(0, 10))
-        y3 = np.array([d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9]])     
-        with open('AlexNet2d\SenAlexNet2.txt', 'rb') as handle4:
-            e = pickle.load(handle4)
-        x = np.array(range(0, 10))
-        y4 = np.array([e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9]])
-        with open('AlexNet2d\SpeAlexNet2.txt', 'rb') as handle5:
-            f = pickle.load(handle5)
-        x = np.array(range(0, 10))
-        y5 = np.array([f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9]])
-        plt.title("AlexNet ACC | ACU | NPV | PPV | SPE | SEN")
-        plt.xlabel("Classes")
-        plt.ylabel("ACC | ACU | NPV | PPV | SPE | SEN")
-        plt.plot(x, y, y1)
-        plt.plot(x, y2, y3)
-        plt.plot(x, y4, y5)
-        plt.legend()
-        plt.show()
-
-
-#---------------------------------------------------------------------
-
-
-def escolhe_resultado2_generic2():
-    if escolhegeneric.get() == "Acc-AlexNet MNIST":
-        with open('AlexNet2d\AccAlexNet2.txt', 'rb') as handle:
-            a = pickle.load(handle)
-        x = np.array(range(0, 10))
-        y = np.array([a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9]])
-        plt.title("Acc values")
-        plt.xlabel("Classes")
-        plt.ylabel("Acc values")
-        plt.plot(x, y, color = "Orange", marker = "o", label = "Acc values")
-        plt.legend()
-        plt.show()
+#------------------------ Regression parametes -----------------------------
+def Insere2dR():
+    learning_rate = float(texto_ins22dR.get())
+    batch_size = int(texto_ins42dR.get())
+    num_epochs = int(texto_ins52dR.get())
+    PATIENCE = int(texto_ins62dR.get())
+    num_monte_carlo = int(texto_ins72dR.get())
+    inputs = int(texto_ins02d1R.get())
+    classes = int(texto_ins02d1R1.get())
+    print("Parameters entered successfully")
+    print("Lerning rate", learning_rate) 
+    print("Batch size:", batch_size) 
+    print("Maximum number of epoch:", num_epochs)  
+    print("Patience value:", PATIENCE) 
+    print("Monte Carlo value:", num_monte_carlo) 
+    print("Input Shape:", inputs) 
+    print("Number of classes:", classes) 
+    menuinserir2_2dR()
     
-    elif escolhegeneric.get() == "Auc-AlexNet MNIST":
-        with open('AlexNet2d\AucAlexNet2.txt', 'rb') as handle1:
-            b = pickle.load(handle1)
-        x = np.array(range(0, 10))
-        y1 = np.array([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9]])
-        plt.title("AlexNet - Auc values")
-        plt.xlabel("Classes")
-        plt.ylabel("Auc values")
-        plt.plot(x, y1, color = "Green", marker = "o", label = "Auc values")
-        plt.legend()
-        plt.show()
-        
-        
-    elif escolhegeneric.get() == "Npv-AlexNet MNIST":
-        with open(rb'AlexNet2d\NpvAlexNet2.txt', 'rb') as handle2:
-            c = pickle.load(handle2)
-        x = np.array(range(0, 10))
-        y2 = np.array([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9]])
-        plt.title("NPV values")
-        plt.xlabel("Classes")
-        plt.ylabel("NPV values")
-        plt.plot(x, y2, color = "blue", marker = "o", label = "NPV values")
-        plt.legend()
-        plt.show()
-        
-    elif escolhegeneric.get() == "Ppv-AlexNet MNIST":
-        with open('AlexNet2d\PpvAlexNet2.txt', 'rb') as handle3:
-            d = pickle.load(handle3)
-        x = np.array(range(0, 10))
-        y3 = np.array([d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9]])
-        plt.title("AlexNet - PPV valuess")
-        plt.xlabel("Classes")
-        plt.ylabel("PPV values")
-        plt.plot(x, y3, color = "red", marker = "o", label = "PPV values")
-        plt.legend()
-        plt.show()
-      
-    elif escolhegeneric.get() == "Sen-AlexNet MNIST":
-        with open('AlexNet2d\SenAlexNet2.txt', 'rb') as handle4:
-            e = pickle.load(handle4)
-        x = np.array(range(0, 10))
-        y4 = np.array([e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9]])
-        plt.title("AlexNet - Sen")
-        plt.xlabel("Classes")
-        plt.ylabel("Sen values")
-        plt.plot(x, y4, color = "black", marker = "o", label = "Sen values")
-        plt.legend()
-        plt.show()
-
-    elif escolhegeneric.get() == "Spe-AlexNet MNIST":
-        with open('AlexNet2d\SpeAlexNet2.txt', 'rb') as handle5:
-            f = pickle.load(handle5)
-        x = np.array(range(0, 10))
-        y5 = np.array([f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9]])
-        plt.title("AlexNet - Spe")
-        plt.xlabel("Classes")
-        plt.ylabel("Spe values")
-        plt.plot(x, y5, color = "Purple", marker = "o", label = "Spe values")
-        plt.legend()
-        plt.show()
-
-
-
-def escolhe_resultado2_generic():
-    if escolhegeneric.get() == "Acc-AlexNet MNIST":
-        object_Acc_Generic = []
-        with (open("AlexNet2d\AccAlexNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_Acc_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_Acc_Generic)   
-                 
-    elif escolhegeneric.get() == "Auc-AlexNet MNIST":
-        object_Auc_Generic = []
-        with (open("AlexNet2d\AucAlexNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_Auc_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_Auc_Generic)
-                 
-    elif escolhegeneric.get() == "Npv-AlexNet MNIST":
-        object_NPV_Generic = []
-        with (open(rb"AlexNet2d\NpvAlexNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_NPV_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_NPV_Generic)
-                 
-    elif escolhegeneric.get() == "Ppv-AlexNet MNIST":
-        object_PPV_Generic = []
-        with (open("AlexNet2d\PpvAlexNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_PPV_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_PPV_Generic)
-                 
-    elif escolhegeneric.get() == "Sen-AlexNet MNIST":
-        object_SEN_Generic = []
-        with (open("AlexNet2d\SenAlexNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SEN_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_SEN_Generic)
-
-    elif escolhegeneric.get() == "Spe-AlexNet MNIST":
-        object_SPE_Generic = []
-        with (open("AlexNet2d\SpeAlexNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SPE_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_SPE_Generic)
-
-    else:    
-            print("Select the result in the select box") 
     
-#-------------------   Combobox - Escolha de resultados do modelo leNet -------------------------------------------------------------
-
-def genericresult1_aux():
-    box_value3=StringVar()
-    global escolhegeneric
-    escolhegeneric = ttk.Combobox(frame_menu_vergeneric1, textvariable=box_value3, state='readonly')
-    escolhegeneric["values"] = ["Acc-LeNet MNIST","Auc-LeNet MNIST","Npv-LeNet MNIST","Ppv-LeNet MNIST","Sen-LeNet MNIST","Spe-LeNet MNIST"]
-    escolhegeneric.current(0)
-    label0 = Label(frame_menu_vergeneric1, width=25, height=2,
-                  text ="\nLeNet 2 Dimensions \n", font=('verdana', 10, 'bold'), justify=CENTER)
-    label01 = Label(frame_menu_vergeneric1, width=25, height=2,
-                  text ="\nClick the button to:\n", font=('verdana', 10, 'bold'), justify=CENTER)
-    label02 = Label(frame_menu_vergeneric1, width=25, height=3,
-                  text ="\n\n-> See result of the select value:\n", font=('verdana', 11, 'bold'), justify=CENTER)
-    label1 = Label(frame_menu_vergeneric1, width=25, height=2,
-                  text ="\n\n Select the Result \n", font=('verdana', 10), justify=CENTER)
-    label0.grid(row=0, column=0)
-    label01.grid(row=0, column=1)
-    label02.grid(row=2, column=1)
-    label1.grid(row=2, column=0)
-    escolhegeneric.grid(row=3, column=0)
-    Button(frame_menu_vergeneric1,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=escolhe_resultado1_generic1).grid(row=1, column=1)
-    Button(frame_menu_vergeneric1,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=escolhe_resultado1_generic2).grid(row=3, column=1)
-    Button(frame_menu_vergeneric1,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=escolhe_resultado1_generic).grid(row=4, column=1)
-
-# ----------------------- Imprime os resultados da arquitetura Lenet ---------------
-
-def escolhe_resultado1_generic1():
-        with open('LeNet2d\AccLeNet2.txt', 'rb') as handle:
-            a = pickle.load(handle)
-        x = np.array(range(0, 10))
-        y = np.array([a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9]])
-        with open('LeNet2d\AucLeNet2.txt', 'rb') as handle1:
-            b = pickle.load(handle1)
-        x = np.array(range(0, 10))
-        y1 = np.array([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9]])       
-        with open(rb'LeNet2d\NpvLeNet2.txt', 'rb') as handle2:
-            c = pickle.load(handle2)
-        x = np.array(range(0, 10))
-        y2 = np.array([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9]])       
-        with open('LeNet2d\PpvLeNet2.txt', 'rb') as handle3:
-            d = pickle.load(handle3)
-        x = np.array(range(0, 10))
-        y3 = np.array([d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9]])     
-        with open('LeNet2d\SenLeNet2.txt', 'rb') as handle4:
-            e = pickle.load(handle4)
-        x = np.array(range(0, 10))
-        y4 = np.array([e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9]])
-        with open('LeNet2d\SpeLeNet2.txt', 'rb') as handle5:
-            f = pickle.load(handle5)
-        x = np.array(range(0, 10))
-        y5 = np.array([f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9]])
-        plt.title("LeNet - ACC | ACU | NPV | PPV | SPE | SEN")
-        plt.xlabel("Classes")
-        plt.ylabel("ACC | ACU | NPV | PPV | SPE | SEN")
-        plt.plot(x, y, y1)
-        plt.plot(x, y2, y3)
-        plt.plot(x, y4, y5)
-        plt.legend()
-        plt.show()
-
-
-#---------------------------------------------------------------------
-
-
-def escolhe_resultado1_generic2():
-    if escolhegeneric.get() == "Acc-LeNet MNIST":
-        with open('LeNet2d\AccLeNet2.txt', 'rb') as handle:
-            a = pickle.load(handle)
-        x = np.array(range(0, 10))
-        y = np.array([a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9]])
-        plt.title("LeNet - Acc values")
-        plt.xlabel("Classes")
-        plt.ylabel("Acc values")
-        plt.plot(x, y, color = "Orange", marker = "o", label = "Acc values")
-        plt.legend()
-        plt.show()
-    
-    elif escolhegeneric.get() == "Auc-LeNet MNIST":
-        with open('LeNet2d\AucLeNet2.txt', 'rb') as handle1:
-            b = pickle.load(handle1)
-        x = np.array(range(0, 10))
-        y1 = np.array([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9]])
-        plt.title("LeNet - Auc values")
-        plt.xlabel("Classes")
-        plt.ylabel("Auc values")
-        plt.plot(x, y1, color = "Green", marker = "o", label = "Auc values")
-        plt.legend()
-        plt.show()
-        
-        
-    elif escolhegeneric.get() == "Npv-LeNet MNIST":
-        with open(rb'LeNet2d\NpvLeNet2.txt', 'rb') as handle2:
-            c = pickle.load(handle2)
-        x = np.array(range(0, 10))
-        y2 = np.array([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9]])
-        plt.title("LeNet - NPV values")
-        plt.xlabel("Classes")
-        plt.ylabel("NPV values")
-        plt.plot(x, y2, color = "blue", marker = "o", label = "NPV values")
-        plt.legend()
-        plt.show()
-        
-    elif escolhegeneric.get() == "Ppv-LeNet MNIST":
-        with open('LeNet2d\PpvLeNet2.txt', 'rb') as handle3:
-            d = pickle.load(handle3)
-        x = np.array(range(0, 10))
-        y3 = np.array([d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9]])
-        plt.title("LeNet - PPV values")
-        plt.xlabel("Classes")
-        plt.ylabel("PPV values")
-        plt.plot(x, y3, color = "red", marker = "o", label = "PPV values")
-        plt.legend()
-        plt.show()
-      
-    elif escolhegeneric.get() == "Sen-LeNet MNIST":
-        with open('LeNet2d\SenLeNet2.txt', 'rb') as handle4:
-            e = pickle.load(handle4)
-        x = np.array(range(0, 10))
-        y4 = np.array([e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9]])
-        plt.title("LeNet - Sen values")
-        plt.xlabel("Classes")
-        plt.ylabel("Sen values")
-        plt.plot(x, y4, color = "black", marker = "o", label = "Sen values")
-        plt.legend()
-        plt.show()
-
-    elif escolhegeneric.get() == "Spe-LeNet MNIST":
-        with open('LeNet2d\SpeLeNet2.txt', 'rb') as handle5:
-            f = pickle.load(handle5)
-        x = np.array(range(0, 10))
-        y5 = np.array([f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9]])
-        plt.title("LeNet - Spe values")
-        plt.xlabel("Classes")
-        plt.ylabel("Spe values")
-        plt.plot(x, y5, color = "Purple", marker = "o", label = "Spe values")
-        plt.legend()
-        plt.show()
-
-
-
-def escolhe_resultado1_generic():
-    if escolhegeneric.get() == "Acc-LeNet MNIST":
-        object_Acc_Generic = []
-        with (open("LeNet2d\AccLeNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_Acc_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_Acc_Generic)   
-                 
-    elif escolhegeneric.get() == "Auc-LeNet MNIST":
-        object_Auc_Generic = []
-        with (open("LeNet2d\AucLeNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_Auc_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_Auc_Generic)
-                 
-    elif escolhegeneric.get() == "Npv-LeNet MNIST":
-        object_NPV_Generic = []
-        with (open(rb"LeNet2d\NpvLeNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_NPV_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_NPV_Generic)
-                 
-    elif escolhegeneric.get() == "Ppv-LeNet MNIST":
-        object_PPV_Generic = []
-        with (open("LeNet2d\PpvLeNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_PPV_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_PPV_Generic)
-                 
-    elif escolhegeneric.get() == "Sen-LeNet MNIST":
-        object_SEN_Generic = []
-        with (open("LeNet2d\SenLeNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SEN_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_SEN_Generic)
-
-    elif escolhegeneric.get() == "Spe-LeNet MNIST":
-        object_SPE_Generic = []
-        with (open("LeNet2d\SpeLeNet2.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SPE_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_SPE_Generic)
-
-    else:    
-            print("Select the result in the select box") 
-            
-
-#-------------------   Combobox - Escolha de resultados do modelo leNet -------------------------------------------------------------
-
+#-------------------   1d LeNet Result    -------------------------------------
 def genericresult_aux():
     box_value3=StringVar()
     global escolhegeneric
     escolhegeneric = ttk.Combobox(frame_menu_vergeneric, textvariable=box_value3, state='readonly')
-    escolhegeneric["values"] = ["Acc-LeNet ISRUC-SLEEP","Auc-LeNet ISRUC-SLEEP","Npv-LeNet ISRUC-SLEEP","Ppv-LeNet ISRUC-SLEEP","Sen-LeNet ISRUC-SLEEP","Spe-LeNet ISRUC-SLEEP"]
+    escolhegeneric["values"] = ["Acc-LeNet","Auc-LeNet","Npv-LeNet","Ppv-LeNet","Sen-LeNet","Spe-LeNet"]
     escolhegeneric.current(0)
     label0 = Label(frame_menu_vergeneric, width=25, height=2,
                   text ="\nLeNet 1 Dimension \n", font=('verdana', 10, 'bold'), justify=CENTER)
@@ -691,350 +476,28 @@ def genericresult_aux():
     label02.grid(row=2, column=1)
     label1.grid(row=2, column=0)
     escolhegeneric.grid(row=3, column=0)
-    Button(frame_menu_vergeneric,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=escolhe_resultado_generic1).grid(row=1, column=1)
-    Button(frame_menu_vergeneric,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=escolhe_resultado_generic2).grid(row=3, column=1)
-    Button(frame_menu_vergeneric,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=escolhe_resultado_generic).grid(row=4, column=1)
+    Button(frame_menu_vergeneric,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=lenet_1d_all_plot_call).grid(row=1, column=1)
+    Button(frame_menu_vergeneric,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=lenet_1d_one_plot_call).grid(row=3, column=1)
+    Button(frame_menu_vergeneric,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=lenet_1d_print_call).grid(row=4, column=1)
+    labelclasse = Label(frame_menu_vergeneric, width=25, height=2,
+                  text ="\n Number of classes: \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse.grid(row=5, column=0)
+    labelclasse1 = Label(frame_menu_vergeneric, width=25, height=1,
+                  text ="  ", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse1.grid(row=4, column=0)
+    global texto_ins22d
+    texto_ins22d = Entry(frame_menu_vergeneric, width=8, font="verdana 9", justify=CENTER)
+    texto_ins22d.insert(END, '5')
+    texto_ins22d.grid(row=6, column=0)
 
 
-# ----------------------- Imprime os resultados da arquitetura Lenet ---------------
-
-def escolhe_resultado_generic1():
-    object_NPV_Generic = []
-    with (open(rb"LeNet1d\NpvLeNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_NPV_Generic.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_NPV_all_epochs = []
-    for epoch in object_NPV_Generic:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_NPV_all_epochs.append(media)
- #---------------------------------------       
-    object_PPV_Generic = []
-    with (open("LeNet1d\PpvLeNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_PPV_Generic.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_PPV_all_epochs = []
-    for epoch in object_PPV_Generic:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_PPV_all_epochs.append(media) 
- #---------------------------------------------    
-    object_ACC_Generic = []
-    with (open("LeNet1d\AccLeNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_ACC_Generic.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_ACC_all_epochs = []
-    for epoch in object_ACC_Generic:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_ACC_all_epochs.append(media)    
-#-----------------------------------------------------        
-    object_AUC_Generic = []
-    with (open("LeNet1d\AucLeNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_AUC_Generic.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_AUC_all_epochs = []
-    for epoch in object_AUC_Generic:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_AUC_all_epochs.append(media)    
- #---------------------------------------------------------------       
-    object_SEN_Generic = []
-    with (open("LeNet1d\SenLeNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_SEN_Generic.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_SEN_all_epochs = []
-    for epoch in object_SEN_Generic:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_SEN_all_epochs.append(media)  
-#------------------------------------------------------------------         
-    object_SPE_Generic = []
-    with (open("LeNet1d\SpeLeNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_SPE_Generic.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_SPE_all_epochs = []
-    for epoch in object_SPE_Generic:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_SPE_all_epochs.append(media)      
-#---------------------------------------------------------------------
-    xpoints = range(len(object_NPV_Generic))  
-    plt.figure()
-    plt.plot(xpoints, list_NPV_all_epochs, list_PPV_all_epochs)
-    plt.plot(xpoints, list_ACC_all_epochs, list_AUC_all_epochs)
-    plt.plot(xpoints, list_SEN_all_epochs, list_SPE_all_epochs)
-    plt.title("LeNet - ACC | AUC | NPV | PPV | SPE | SEN")
-    plt.ylabel('ACC | AUC | NPV | PPV | SPE | SEN')
-    plt.show()
-
-
-def escolhe_resultado_generic2_cm():
-        object_m_Generic = []
-        with (open("LeNet1d\all_metrics.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_m_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_m_Generic:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_m_Generic))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.xlabel('Number of epochs')
-        plt.ylabel('Confusion Matrix')
-        plt.show()
-       
-
-def escolhe_resultado_generic2():
-    if escolhegeneric.get() == "Acc-LeNet ISRUC-SLEEP":
-        object_ACC_Generic = []
-        with (open("LeNet1d\AccLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_ACC_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_ACC_Generic:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_ACC_Generic))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("LeNet - ACC")
-        plt.ylabel('Value of Acc')
-        plt.show()
-       
-        
-    elif escolhegeneric.get() == "Auc-LeNet ISRUC-SLEEP":
-        object_AUC_Generic = []
-        with (open("LeNet1d\AucLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_AUC_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_AUC_Generic:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_AUC_Generic))  
-        plt.figure()
-        plt.title("LeNet - AUC")
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.ylabel('Value of AUC')
-        plt.show()
-        
-        
-    elif escolhegeneric.get() == "Npv-LeNet ISRUC-SLEEP":
-        object_NPV_Generic = []
-        with (open(rb"LeNet1d\NpvLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_NPV_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_NPV_Generic:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_NPV_Generic))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("LeNet - NPV")
-        plt.ylabel('Value of NPV')
-        plt.show()
-        
-        
-    elif escolhegeneric.get() == "Ppv-LeNet ISRUC-SLEEP":
-        object_PPV_Generic = []
-        with (open("LeNet1d\PpvLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_PPV_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_PPV_Generic:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-    #---------------------------------------------------------------------
-        xpoints = range(len(object_PPV_Generic))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.xlabel('Number of epochs')
-        plt.title("LeNet - PPV")
-        plt.ylabel('Value of PPV')
-        plt.show()
-        
-    elif escolhegeneric.get() == "Sen-LeNet ISRUC-SLEEP":
-        object_SEN_Generic = []
-        with (open("LeNet1d\SenLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SEN_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_SEN_Generic:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_SEN_Generic))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("LeNet - SEN")
-        plt.ylabel('Value of Sen')
-        plt.show()
-        
-        
-    elif escolhegeneric.get() == "Spe-LeNet ISRUC-SLEEP":
-        object_SPE_Generic = []
-        with (open("LeNet1d\SpeLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SPE_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_SPE_Generic:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_SPE_Generic))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("LeNet - SPE")
-        plt.ylabel('Value of Spe')
-        plt.show()
-
-
-def escolhe_resultado_generic():
-    
-    if escolhegeneric.get() == "Acc-Alexnet ISRUC-SLEEP":
-        object_Acc_Generic = []
-        with (open("LeNet1d\AccLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_Acc_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_Acc_Generic)   
-                 
-    elif escolhegeneric.get() == "Auc-Alexnet ISRUC-SLEEP":
-        object_Auc_Generic = []
-        with (open("LeNet1d\AucLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_Auc_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_Auc_Generic)
-                 
-    elif escolhegeneric.get() == "Npv-Alexnet ISRUC-SLEEP":
-        object_NPV_Generic = []
-        with (open(r"LeNet1d\NpvLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_NPV_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_NPV_Generic)
-                 
-    elif escolhegeneric.get() == "Ppv-Alexnet ISRUC-SLEEP":
-        object_PPV_Generic = []
-        with (open("LeNet1d\PpvLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_PPV_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_PPV_Generic)
-                 
-    elif escolhegeneric.get() == "Sen-Alexnet ISRUC-SLEEP":
-        object_SEN_Generic = []
-        with (open("LeNet1d\SenLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SEN_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_SEN_Generic)
-
-    elif escolhegeneric.get() == "Spe-Alexnet ISRUC-SLEEP":
-        object_SPE_Generic = []
-        with (open("LeNet1d\SpeLeNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SPE_Generic.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_SPE_Generic)
-
-    else:    
-            print("Select the result in the select box") 
-            
-#-------------------   Combobox - Escolha de resultados do modelo leNet -------------------------------------------------------------
-
+#-------------------   1d AlexNet Result    -----------------------------------
 def alexnetresult_aux():
     box_value3=StringVar()
-    global escolhegeneric1
-    escolhegeneric1 = ttk.Combobox(frame_menu_veralexnet, textvariable=box_value3, state='readonly')
-    escolhegeneric1["values"] = ["Acc-AlexNet ISRUC-SLEEP","Auc-AlexNet ISRUC-SLEEP","Npv-AlexNet ISRUC-SLEEP","Ppv-AlexNet ISRUC-SLEEP","Sen-AlexNet ISRUC-SLEEP","Spe-AlexNet ISRUC-SLEEP"]
-    escolhegeneric1.current(0)
+    global escolhegeneric
+    escolhegeneric = ttk.Combobox(frame_menu_veralexnet, textvariable=box_value3, state='readonly')
+    escolhegeneric["values"] = ["Acc-AlexNet","Auc-AlexNet","Npv-AlexNet","Ppv-AlexNet","Sen-AlexNet","Spe-AlexNet"]
+    escolhegeneric.current(0)
     label0 = Label(frame_menu_veralexnet, width=25, height=2,
                   text ="\nAlexNet 1 Dimension \n", font=('verdana', 10, 'bold'), justify=CENTER)
     label01 = Label(frame_menu_veralexnet, width=25, height=2,
@@ -1047,320 +510,171 @@ def alexnetresult_aux():
     label01.grid(row=0, column=1)
     label02.grid(row=2, column=1)
     label1.grid(row=2, column=0)
-    escolhegeneric1.grid(row=3, column=0)
-    Button(frame_menu_veralexnet,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=alexnet_resultado_generic1).grid(row=1, column=1)
-    Button(frame_menu_veralexnet,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=alexnet_resultado_generic2).grid(row=3, column=1)
-    Button(frame_menu_veralexnet,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=alexnet_resultado_generic).grid(row=4, column=1)
-
-# ----------------------- Imprime os resultados da arquitetura Alexnet ---------------
-
-def alexnet_resultado_generic1():
-    object_NPV_alexnet = []
-    with (open(rb"AlexNet1d\NpvAlexNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_NPV_alexnet.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_NPV_all_epochs = []
-    for epoch in object_NPV_alexnet:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_NPV_all_epochs.append(media)
- #---------------------------------------       
-    object_PPV_alexnet = []
-    with (open("AlexNet1d\PpvAlexNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_PPV_alexnet.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_PPV_all_epochs = []
-    for epoch in object_PPV_alexnet:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_PPV_all_epochs.append(media) 
- #---------------------------------------------    
-    object_ACC_alexnet = []
-    with (open("AlexNet1d\AccAlexNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_ACC_alexnet.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_ACC_all_epochs = []
-    for epoch in object_ACC_alexnet:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_ACC_all_epochs.append(media)    
-#-----------------------------------------------------        
-    object_AUC_alexnet = []
-    with (open("AlexNet1d\AucAlexNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_AUC_alexnet.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_AUC_all_epochs = []
-    for epoch in object_AUC_alexnet:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_AUC_all_epochs.append(media)    
- #---------------------------------------------------------------       
-    object_SEN_alexnet = []
-    with (open("AlexNet1d\SenAlexNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_SEN_alexnet.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_SEN_all_epochs = []
-    for epoch in object_SEN_alexnet:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_SEN_all_epochs.append(media)  
-#------------------------------------------------------------------         
-    object_SPE_alexnet = []
-    with (open("AlexNet1d\SpeAlexNet1.txt","rb")) as openfile:
-          while True:
-             try:
-                object_SPE_alexnet.append(pickle.load(openfile))
-             except EOFError:
-                 break
-    list_SPE_all_epochs = []
-    for epoch in object_SPE_alexnet:
-        media = 0
-        for i in epoch:
-            media += epoch[i]
-        media /= 5
-        list_SPE_all_epochs.append(media)      
-#---------------------------------------------------------------------
-    xpoints = range(len(object_NPV_alexnet))  
-    plt.figure()
-    plt.plot(xpoints, list_NPV_all_epochs, list_PPV_all_epochs)
-    plt.plot(xpoints, list_ACC_all_epochs, list_AUC_all_epochs)
-    plt.plot(xpoints, list_SEN_all_epochs, list_SPE_all_epochs)
-    plt.title("AlexNet - ACC | AUC | NPV | PPV | SPE | SEN")
-    plt.ylabel('ACC | AUC | NPV | PPV | SPE | SEN')
-    plt.show()
-
-def alexnet_resultado_generic2():
-    if escolhegeneric1.get() == "Acc-AlexNet ISRUC-SLEEP":
-        object_ACC_alexnet = []
-        with (open("AlexNet1d\AccAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_ACC_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_ACC_alexnet:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_ACC_alexnet))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("AlexNet - ACC ")
-        plt.xlabel('Number of epochs')
-        plt.ylabel('Value of Acc')
-        plt.show()
-       
-        
-    elif escolhegeneric1.get() == "Auc-AlexNet ISRUC-SLEEP":
-        object_AUC_alexnet = []
-        with (open("AlexNet1d\AucAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_AUC_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_AUC_alexnet:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_AUC_alexnet))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("AlexNet - AUC ")
-        plt.ylabel('Value of AUC')
-        plt.show()
-        
-        
-    elif escolhegeneric1.get() == "Npv-AlexNet ISRUC-SLEEP":
-        object_NPV_alexnet = []
-        with (open(rb"AlexNet1d\NpvAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_NPV_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_NPV_alexnet:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_NPV_alexnet))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("AlexNet - NPV ")
-        plt.ylabel('Value of NPV')
-        plt.show()
-        
-        
-    elif escolhegeneric1.get() == "Ppv-AlexNet ISRUC-SLEEP":
-        object_PPV_alexnet = []
-        with (open("AlexNet1d\PpvAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_PPV_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_PPV_alexnet:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-    #---------------------------------------------------------------------
-        xpoints = range(len(object_PPV_alexnet))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("AlexNet - PPV ")
-        plt.ylabel('Value of PPV')
-        plt.show()
-        
-    elif escolhegeneric1.get() == "Sen-AlexNet ISRUC-SLEEP":
-        object_SEN_alexnet = []
-        with (open("AlexNet1d\SenAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SEN_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_SEN_alexnet:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_SEN_alexnet))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("AlexNet - SEN")
-        plt.ylabel('Value of Sen')
-        plt.show()
-        
-        
-    elif escolhegeneric1.get() == "Spe-AlexNet ISRUC-SLEEP":
-        object_SPE_alexnet = []
-        with (open("AlexNet1d\SpeAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SPE_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-        list_ACC_all_epochs = []
-        for epoch in object_SPE_alexnet:
-            media = 0
-            for i in epoch:
-                media += epoch[i]
-            media /= 5
-            list_ACC_all_epochs.append(media)  
-        xpoints = range(len(object_SPE_alexnet))  
-        plt.figure()
-        plt.plot(xpoints, list_ACC_all_epochs)
-        plt.title("AlexNet - SPE")
-        plt.ylabel('Value of Spe')
-        plt.show()
-
-
-def alexnet_resultado_generic():
+    escolhegeneric.grid(row=3, column=0)
+    Button(frame_menu_veralexnet,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=alexnet_1d_all_plot_call).grid(row=1, column=1)
+    Button(frame_menu_veralexnet,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=alexnet_1d_one_plot_call).grid(row=3, column=1)
+    Button(frame_menu_veralexnet,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=alexnet_1d_print_call).grid(row=4, column=1)
+    labelclasse = Label(frame_menu_veralexnet, width=25, height=2,
+                  text ="\n Number of classes: \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse.grid(row=5, column=0)
+    labelclasse1 = Label(frame_menu_veralexnet, width=25, height=1,
+                  text ="  ", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse1.grid(row=4, column=0)
+    global texto_ins22d
+    texto_ins22d = Entry(frame_menu_veralexnet, width=8, font="verdana 9", justify=CENTER)
+    texto_ins22d.insert(END, '5')
+    texto_ins22d.grid(row=6, column=0)
     
-    if escolhegeneric1.get() == "Acc-AlexNet ISRUC-SLEEP":
-        object_Acc_alexnet = []
-        with (open("AlexNet1d\AccAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_Acc_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_Acc_alexnet)   
-                 
-    elif escolhegeneric1.get() == "Auc-AlexNet ISRUC-SLEEP":
-        object_Auc_alexnet = []
-        with (open("AlexNet1d\AucAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_Auc_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_Auc_alexnet)
-                 
-    elif escolhegeneric1.get() == "Npv-AlexNet ISRUC-SLEEP":
-        object_NPV_alexnet = []
-        with (open(rb"AlexNet1d\NpvAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_NPV_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_NPV_alexnet)
-                 
-    elif escolhegeneric1.get() == "Ppv-AlexNet ISRUC-SLEEP":
-        object_PPV_alexnet = []
-        with (open("AlexNet1d\PpvAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_PPV_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_PPV_alexnet)
-                 
-    elif escolhegeneric1.get() == "Sen-AlexNet ISRUC-SLEEP":
-        object_SEN_alexnet = []
-        with (open("AlexNet1d\SenAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SEN_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_SEN_alexnet)
-
-    elif escolhegeneric1.get() == "Spe-AlexNet ISRUC-SLEEP":
-        object_SPE_alexnet = []
-        with (open("AlexNet1d\SpeAlexNet1.txt","rb")) as openfile:
-              while True:
-                 try:
-                    object_SPE_alexnet.append(pickle.load(openfile))
-                 except EOFError:
-                     break
-                 print(object_SPE_alexnet)
-
-    else:    
-            print("Select the result in the select box") 
- 
- 
     
+#------------------------------  1d  Edit Model      --------------------------
+
+def alexnetresult_aux_edit1():
+    box_value3=StringVar()
+    global escolhegeneric
+    escolhegeneric = ttk.Combobox(frame_menu_veralexnete1, textvariable=box_value3, state='readonly')
+    escolhegeneric["values"] = ["Acc-Edit1d","Auc-Edit1d","Npv-Edit1d","Ppv-Edit1d","Sen-Edit1d","Spe-Edit1d"]
+    escolhegeneric.current(0)
+    label0 = Label(frame_menu_veralexnete1, width=25, height=2,
+                  text ="\nEdit 1 Dimension \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    label01 = Label(frame_menu_veralexnete1, width=25, height=2,
+                  text ="\nClick the button to:\n", font=('verdana', 10, 'bold'), justify=CENTER)
+    label02 = Label(frame_menu_veralexnete1, width=25, height=3,
+                  text ="\n\n-> See result of the select value:\n", font=('verdana', 11, 'bold'), justify=CENTER)
+    label1 = Label(frame_menu_veralexnete2, width=25, height=2,
+                  text ="\n\n Select the Result \n", font=('verdana', 10), justify=CENTER)
+    label0.grid(row=0, column=0)
+    label01.grid(row=0, column=1)
+    label02.grid(row=2, column=1)
+    label1.grid(row=2, column=0)
+    escolhegeneric.grid(row=3, column=0)
+    Button(frame_menu_veralexnete1,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=edit_1d_all_plot_call).grid(row=1, column=1)
+    Button(frame_menu_veralexnete1,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=edit_1d_one_plot_call).grid(row=3, column=1)
+    Button(frame_menu_veralexnete1,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=edit_1d_print_call).grid(row=4, column=1)
+    labelclasse = Label(frame_menu_veralexnete1, width=25, height=2,
+                  text ="\n Number of classes: \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse.grid(row=5, column=0)
+    labelclasse1 = Label(frame_menu_veralexnete1, width=25, height=1,
+                  text ="  ", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse1.grid(row=4, column=0)
+    global texto_ins22d
+    texto_ins22d = Entry(frame_menu_veralexnete1, width=8, font="verdana 9", justify=CENTER)
+    texto_ins22d.insert(END, '5')
+    texto_ins22d.grid(row=6, column=0)
+    
+
+#-------------------   2d LeNet Result ---------------------------------------
+
+def genericresult1_aux():
+    box_value3=StringVar()
+    global escolhegeneric
+    escolhegeneric = ttk.Combobox(frame_menu_vergeneric1, textvariable=box_value3, state='readonly')
+    escolhegeneric["values"] = ["Acc-LeNet","Auc-LeNet","Npv-LeNet","Ppv-LeNet","Sen-LeNet","Spe-LeNet"]
+    escolhegeneric.current(0)
+    label0 = Label(frame_menu_vergeneric1, width=25, height=2,
+                  text ="\nLeNet 2 Dimensions \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    label01 = Label(frame_menu_vergeneric1, width=25, height=2,
+                  text ="\nClick the button to:\n", font=('verdana', 10, 'bold'), justify=CENTER)
+    label02 = Label(frame_menu_vergeneric1, width=25, height=3,
+                  text ="\n\n-> See result of the select value:\n", font=('verdana', 11, 'bold'), justify=CENTER)
+    label1 = Label(frame_menu_vergeneric1, width=25, height=2,
+                  text ="\n\n Select the Result \n", font=('verdana', 10), justify=CENTER)
+    label0.grid(row=0, column=0)
+    label01.grid(row=0, column=1)
+    label02.grid(row=2, column=1)
+    label1.grid(row=2, column=0)
+    escolhegeneric.grid(row=3, column=0)
+    Button(frame_menu_vergeneric1,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=lenet_2d_all_plot_call).grid(row=1, column=1)
+    Button(frame_menu_vergeneric1,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=lenet_2d_one_plot_call).grid(row=3, column=1)
+    Button(frame_menu_vergeneric1,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=lenet_2d_print_call).grid(row=4, column=1)
+    labelclasse = Label(frame_menu_vergeneric1, width=25, height=2,
+                  text ="\n Number of classes: \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse.grid(row=5, column=0)
+    labelclasse1 = Label(frame_menu_vergeneric1, width=25, height=1,
+                  text ="  ", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse1.grid(row=4, column=0)
+    global texto_ins22d
+    texto_ins22d = Entry(frame_menu_vergeneric1, width=8, font="verdana 9", justify=CENTER)
+    texto_ins22d.insert(END, '10')
+    texto_ins22d.grid(row=6, column=0)
+
+
+    
+#-------------------   2d AlexNet Result --------------------------------------
+
+def genericresult2_aux():
+    box_value3=StringVar()
+    texto = Entry(frame_menu_vergeneric2, width=8, font="verdana 9", justify=CENTER)
+    texto.insert(END,"Acc-AlexNet")
+    texto.grid(row=3,column=0)
+    global escolhegeneric
+    escolhegeneric = ttk.Combobox(frame_menu_vergeneric2, textvariable=box_value3, state='readonly')
+    escolhegeneric["values"] = ["Acc-AlexNet","Auc-AlexNet","Npv-AlexNet","Ppv-AlexNet","Sen-AlexNet","Spe-AlexNet"]
+    escolhegeneric.current(0)
+    label0 = Label(frame_menu_vergeneric2, width=25, height=2,
+                  text ="\nAlexNet 2 Dimensions \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    label01 = Label(frame_menu_vergeneric2, width=25, height=2,
+                  text ="\nClick the button to:\n", font=('verdana', 10, 'bold'), justify=CENTER)
+    label02 = Label(frame_menu_vergeneric2, width=25, height=3,
+                  text ="\n\n-> See result of the select value:\n", font=('verdana', 11, 'bold'), justify=CENTER)
+    label1 = Label(frame_menu_vergeneric2, width=25, height=2,
+                  text ="\n\n Select the Result \n", font=('verdana', 10), justify=CENTER)
+    label0.grid(row=0, column=0)
+    label01.grid(row=0, column=1)
+    label02.grid(row=2, column=1)
+    label1.grid(row=2, column=0)
+    escolhegeneric.grid(row=3, column=0)
+    Button(frame_menu_vergeneric2,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=alexnet_2d_all_plot_call).grid(row=1, column=1)
+    Button(frame_menu_vergeneric2,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=alexnet_2d_one_plot_call).grid(row=3, column=1)
+    Button(frame_menu_vergeneric2,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=alexnet_2d_print_call).grid(row=4, column=1)
+    labelclasse = Label(frame_menu_vergeneric2, width=25, height=2,
+                  text ="\n Number of classes: \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse.grid(row=5, column=0)
+    labelclasse1 = Label(frame_menu_vergeneric2, width=25, height=1,
+                  text ="  ", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse1.grid(row=4, column=0)
+    global texto_ins22d
+    texto_ins22d = Entry(frame_menu_vergeneric2, width=8, font="verdana 9", justify=CENTER)
+    texto_ins22d.insert(END, '10')
+    texto_ins22d.grid(row=6, column=0)
+    
+    
+#----------------------------- 1d  Edit Model  --------------------------------
+
+def alexnetresult_aux_edit():
+    box_value3=StringVar()
+    global escolhegeneric
+    escolhegeneric = ttk.Combobox(frame_menu_veralexnete2, textvariable=box_value3, state='readonly')
+    escolhegeneric["values"] = ["Acc-Edit2d","Auc-Edit2d","Npv-Edit2d","Ppv-Edit2d","Sen-Edit2d","Spe-Edit2d"]
+    escolhegeneric.current(0)
+    label0 = Label(frame_menu_veralexnete2, width=25, height=2,
+                  text ="\nEdit 2 Dimensions \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    label01 = Label(frame_menu_veralexnete2, width=25, height=2,
+                  text ="\nClick the button to:\n", font=('verdana', 10, 'bold'), justify=CENTER)
+    label02 = Label(frame_menu_veralexnete2, width=25, height=3,
+                  text ="\n\n-> See result of the select value:\n", font=('verdana', 11, 'bold'), justify=CENTER)
+    label1 = Label(frame_menu_veralexnete2, width=25, height=2,
+                  text ="\n\n Select the Result \n", font=('verdana', 10), justify=CENTER)
+    label0.grid(row=0, column=0)
+    label01.grid(row=0, column=1)
+    label02.grid(row=2, column=1)
+    label1.grid(row=2, column=0)
+    escolhegeneric.grid(row=3, column=0)
+    Button(frame_menu_veralexnete2,text="\nSee all the results in a plot", font=('verdana', 9, 'bold'), command=edit_2d_all_plot_call).grid(row=1, column=1)
+    Button(frame_menu_veralexnete2,text="\nSee each result in a plot", font=('verdana', 9, 'bold'), command=edit_2d_one_plot_call).grid(row=3, column=1)
+    Button(frame_menu_veralexnete2,text="\nPrint each result in Iptyton", font=('verdana', 9, 'bold'), command=edit_2d_print_call).grid(row=4, column=1)
+    labelclasse = Label(frame_menu_veralexnete2, width=25, height=2,
+                  text ="\n Number of classes: \n", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse.grid(row=5, column=0)
+    labelclasse1 = Label(frame_menu_veralexnete2, width=25, height=1,
+                  text ="  ", font=('verdana', 10, 'bold'), justify=CENTER)
+    labelclasse1.grid(row=4, column=0)
+    global texto_ins22d
+    texto_ins22d = Entry(frame_menu_veralexnete2, width=8, font="verdana 9", justify=CENTER)
+    texto_ins22d.insert(END, '10')
+    texto_ins22d.grid(row=6, column=0)
+
+
+
 #-------------- Imprime na consola para confirmar
     
 menu_inicial = Tk()
@@ -1385,7 +699,7 @@ posy = altura_screen/2 - altura/2
 #Tamanho do menu - definir a geometry
 menu_inicial.geometry("%dx%d+%d+%d" % (largura, altura, posx, posy))
 
-#------------------- Cria Frames ---------------------------------------------
+#------------------- Create Frame ---------------------------------------------
 
 frame_menuSobre = Frame(menu_inicial)
 frame_verversao = Frame(menu_inicial)
@@ -1395,8 +709,11 @@ frame_menu_inserir =  Frame(menu_inicial)
 frame_menu_inserir1 =  Frame(menu_inicial)
 frame_menu_inserir2 =  Frame(menu_inicial)
 frame_menu_inserir2_2d =  Frame(menu_inicial)
+frame_menu_inserir2_2dR =  Frame(menu_inicial)
 frame_menu_inserir3 =  Frame(menu_inicial)
 frame_menu_inserir2d =  Frame(menu_inicial)
+frame_menu_inserir12dR =  Frame(menu_inicial)
+frame_menu_inserir2_2R =  Frame(menu_inicial)
 frame_menu_inserir12d =  Frame(menu_inicial)
 frame_menu_inserir22d =  Frame(menu_inicial)
 frame_menu_inserir32d =  Frame(menu_inicial)
@@ -1413,6 +730,10 @@ frame_menu_vergeneric2 = Frame(menu_inicial)
 frame_menu_dense = Frame(menu_inicial)
 frame_menu_convolucao  = Frame(menu_inicial)
 frame_menu_pooling  = Frame(menu_inicial)
+frame_menu_veralexnete2 = Frame(menu_inicial)
+frame_menu_veralexnete1 = Frame(menu_inicial)
+frame_menu_informacaor = Frame(menu_inicial)
+
 
 #---------------------------- Gui Barra de Menus -------------------------------
 
@@ -1420,14 +741,18 @@ barraDeMenus = Menu(menu_inicial)
 menuinformacao = Menu(barraDeMenus,tearoff=0)
 menuinformacao.add_command(label="See how to Start 1 Dimensions Datasets",command=vermenuinformacao)
 menuinformacao.add_command(label="See how to Start 2 Dimensions Datasets",command=vermenuinformacao1)
+menuinformacao.add_command(label="See how to Regression",command=vermenuinformacaoR)
 barraDeMenus.add_cascade(label="Start",menu=menuinformacao)
+
 
 #------------------------       Separador Insere          -------------------
 menuinsere = Menu(barraDeMenus,tearoff=0)
 menuinsere.add_command(label="1 Dimension parameters",command=menuinserir1)
 menuinsere.add_command(label="2 Dimensions parameters",command=menuinserir12d)
+menuinsere.add_command(label="Regression",command=menuinserir12dR)
 menuinsere.add_separator()
 barraDeMenus.add_cascade(label="Insert | Run",menu=menuinsere)
+
 
 #------------------------       Separador Resultados      -------------------
 menuresultados = Menu(barraDeMenus,tearoff=0)
@@ -1435,8 +760,8 @@ menuresultados.add_command(label="1 Dimnension - LeNet",command=genericresult)
 menuresultados.add_command(label="1 Dimension - AlexNet",command=alexnetresult)
 menuresultados.add_command(label="2 Dimensions - LeNet",command=genericresult1)
 menuresultados.add_command(label="2 Dimension - AlexNet",command=genericresult2)
-menuresultados.add_command(label="Edit 1 Dimension",command=aux1_insere_convolucao)
-menuresultados.add_command(label="Edit 2 Dimensions",command=aux1_insere_convolucao)
+menuresultados.add_command(label="Edit 1 Dimension",command=genericresult_edit1)
+menuresultados.add_command(label="Edit 2 Dimensions",command=genericresult_edit)
 menuresultados.add_separator()
 barraDeMenus.add_cascade(label="Results",menu=menuresultados)
 
@@ -1450,6 +775,7 @@ barraDeMenus.add_cascade(label="FAQ",menu=menuresultados)
 
 
 #------------------------       Separador About      -------------------
+
 menuSobre = Menu(barraDeMenus,tearoff=0)
 menuSobre.add_command(label="Show Message",command=semComando)
 menuSobre.add_separator()
@@ -1458,7 +784,8 @@ menu_inicial.config(menu=barraDeMenus)
 
 
 
-#---------------------------- Menu inicial IRUC DATASET ------------- 
+#---------------------------- Menu FAQ        ------------- 
+
 label_mensagem_versao = Label(frame_verversao,
                   text ="\n\n   Programs and list of packages", font="verdana 10 bold")
 label_mensagem1_versao = Label(frame_verversao,
@@ -1471,14 +798,21 @@ label_mensagem4_versao = Label(frame_verversao,
                   text ="\n h5py = 3.1.0 | numpy = 1.19.5 | pandas = 1.2.4 | pycm==3.2 ", font="verdana 10")
 label_mensagem5_versao = Label(frame_verversao,
                   text ="\n sympy = 1.8 | keras = 2.6.0 | matplotlib = 3.3.4 | scipy = 1.4.1| ", font="verdana 10")
-
-#sympy==1.8  keras==2.6.0 matplotlib = 3.3.4 Phyton = 3.8.8
+label_mensagem6_versao = Label(frame_verversao,
+                  text ="\n\n If you want to see some videos press the button:\n", font="verdana 10")
+new = 1
+url = "https://www.youtube.com/channel/UC9bZjefkicHKC6VJPGLLZJA/videos"
+def openweb():
+    webbrowser.open(url,new=new)
+button = Button(frame_verversao, text = "See Videos",command=openweb, font="verdana 9 bold")
 label_mensagem_versao.grid(row=0, column=0)
 label_mensagem1_versao.grid(row=1, column=0)
 label_mensagem2_versao.grid(row=2, column=0)
 label_mensagem3_versao.grid(row=3, column=0)
 label_mensagem4_versao.grid(row=4, column=0)
 label_mensagem5_versao.grid(row=5, column=0)
+label_mensagem6_versao.grid(row=6, column=0)
+button.grid(row=7, column=0)
 
 
 #---------------------------- Menu inicial IRUC DATASET ------------- 
@@ -1489,14 +823,18 @@ label_mensagem1_sobre = Label(frame_menuSobre,
 label_mensagem2_sobre = Label(frame_menuSobre,
                   text ="\n     Aníbal João Lopes Chaves", font="verdana 10 bold")
 label_mensagem21_sobre = Label(frame_menuSobre,
-                  text ="\n June of 2022", font="verdana 10")
+                  text ="\n September of 2021 - June of 2022", font="verdana 10")
 
 
 label_mensagem_sobre.grid(row=0, column=0)
 label_mensagem1_sobre.grid(row=1, column=0)
 label_mensagem2_sobre.grid(row=2, column=0)
 label_mensagem21_sobre.grid(row=3, column=0)
-#---------------------------- Menu inicial IRUC DATASET --------------
+
+
+
+
+#---------------------------- Inicial Menu 1 dimension --------------
     
 
 label_mensagem = Label(frame_menu_informacao,
@@ -1532,12 +870,31 @@ label_mensagem6.grid(row=7, column=0)
 label_mensagem7.grid(row=8, column=0)
 label_mensagem8.grid(row=9, column=0)
 
-#---------------------------- Menu inicial IRUC MNIST --------------
+
+#---------------------------- Start Menu 1 dimension Regression --------------
+    
+label_mensagem3_R = Label(frame_menu_informacaor,
+                  text ="\n\n              1 - Select | Run Parameters and Arquitectures.", font="verdana 10 bold")
+label_mensagem4_R = Label(frame_menu_informacaor,
+                  text ="\n                In the Program separator Insert | Run (Regression)", font="verdana 9")
+label_mensagem5_R = Label(frame_menu_informacaor,
+                  text ="\n                Insert the parametres and after edit|run", font="verdana 9 bold")
+label_mensagem9_R = Label(frame_menu_informacaor,
+                  text ="\n\n              Go to Folder Results to see other results", font="verdana 10 bold")
+
+
+
+label_mensagem3_R.grid(row=4, column=0)
+label_mensagem4_R.grid(row=5, column=0)
+label_mensagem5_R.grid(row=6, column=0)
+label_mensagem9_R.grid(row=10, column=0)
+
+#---------------------------- Star Menu two dimensions --------------
     
 label_mensagem3_MNIST = Label(frame_menu_informacao1,
                   text ="\n\n              1 - Select | Run Parameters and Arquitectures.", font="verdana 10 bold")
 label_mensagem4_MNIST = Label(frame_menu_informacao1,
-                  text ="\n                In the Program separator Insert | Run", font="verdana 9")
+                  text ="\n                In the Program separator Insert | Run (2 dimensions)", font="verdana 9")
 label_mensagem5_MNIST = Label(frame_menu_informacao1,
                   text ="\n                Insert the parametres and after edit|run", font="verdana 9 bold")
 label_mensagem6_MNIST = Label(frame_menu_informacao1,
@@ -1546,6 +903,9 @@ label_mensagem7_MNIST = Label(frame_menu_informacao1,
                   text ="\n                Show PLot - See  each/all the results in a plot ", font="verdana 9")
 label_mensagem8_MNIST = Label(frame_menu_informacao1,
                   text ="                  Print each result in Iphyton", font="verdana 9")
+label_mensagem9_MNIST = Label(frame_menu_informacao1,
+                  text ="\n\n              Go to Folder Results to see other results", font="verdana 10 bold")
+
 
 
 label_mensagem3_MNIST.grid(row=4, column=0)
@@ -1554,9 +914,10 @@ label_mensagem5_MNIST.grid(row=6, column=0)
 label_mensagem6_MNIST.grid(row=7, column=0)
 label_mensagem7_MNIST.grid(row=8, column=0)
 label_mensagem8_MNIST.grid(row=9, column=0)
+label_mensagem9_MNIST.grid(row=10, column=0)
 
-
-#----------------------------------- Widgets Escolhe se quer modelo pré defenido ou editar --------------------
+0
+#----------------------------------- Widgets message ------------------------------------------------------------
 
 label_ins1_insere3 = Label(frame_menu_inserir3, width=33, height=2,
                       text ="Check the progress in the Console.", font=('verdana', 10, 'bold'), justify=CENTER)
@@ -1566,7 +927,7 @@ label_ins1_insere3.grid(row=0, column=0)
 label_ins_insere3.grid(row=1, column=0)
 
 
-#----------------------------------- Widgets Escolhe se quer modelo 1d pré defenido ou editar --------------------
+#----------------------------------- Widgets Select one dimension AlexNet/ Lenet or Train --------------------
 
 label_ins1_insere2 = Label(frame_menu_inserir2, width=33, height=2,
                       text ="Check the progress in the Console.", font=('verdana', 11, 'bold'), justify=CENTER)
@@ -1578,12 +939,52 @@ cmd_escolhemodelo = Button(frame_menu_inserir2, text="Run LeNet-5",
                                  font=('verdana', 9, 'bold'),command=runmodel_lenet_1d_call)
 cmd_escolhemodelo.grid(row=2,column=0)
 cmd_editamodelo = Button(frame_menu_inserir2, text="Run Alexnet",
-                                 font=('verdana', 9, 'bold'),command=runmodel_alexnet_2d)
+                                 font=('verdana', 9, 'bold'),command=alexnet_resultado_generic1_call)
 cmd_editamodelo.grid(row=2,column=1)
+label_ins_insere1_edit1 = Label(frame_menu_inserir2, width=33, height=3,
+                      text ="\n\n Press the button to train the Model:\n", font=('verdana', 11), justify=CENTER)
+label_ins_insere1_edit1.grid(row=3, column=0)
+
+cmd_escolhemodelo1_edit1 = Button(frame_menu_inserir2, text="Train the Model",
+                                 font=('verdana', 9, 'bold'),command=runmodel_edit_1d_call)
+cmd_escolhemodelo1_edit1.grid(row=4,column=1)
+label_ins_insere1_editb1 = Label(frame_menu_inserir2, width=33, height=3,
+                      text ="\n\n Press the button to change parameters:\n", font=('verdana', 11), justify=CENTER)
+label_ins_insere1_editb1.grid(row=5, column=0)
+cmd_escolhemodelo1b_editb1 = Button(frame_menu_inserir2, text="Back",
+                                 font=('verdana', 9, 'bold'),command=menuinserir1)
+cmd_escolhemodelo1b_editb1.grid(row=6,column=1)
 
 
 
-#----------------------------------- Widgets Escolhe se quer modelo 2d pré defenido ou editar --------------------
+#----------------------------------- Widgets Select Regression AlexNet/ Lenet or Train --------------------
+
+label_ins1_insere2_2dR = Label(frame_menu_inserir2_2dR, width=33, height=2,
+                      text ="Check the progress in the Console.", font=('verdana', 11, 'bold'), justify=CENTER)
+label_ins_insere2_2dR = Label(frame_menu_inserir2_2dR, width=33, height=3,
+                      text ="Press the button to choose the Model:", font=('verdana', 11), justify=CENTER)
+label_ins1_insere2_2dR.grid(row=0, column=0)
+label_ins_insere2_2dR.grid(row=1, column=0)
+cmd_escolhemodelo_2dR = Button(frame_menu_inserir2_2dR, text="Run LeNet-5",
+                                 font=('verdana', 9, 'bold'),command=run_regression_call)
+cmd_escolhemodelo_2dR.grid(row=2,column=0)
+cmd_escolhemodelo_2dR1 = Button(frame_menu_inserir2_2dR, text="Run AlexNet",
+                                 font=('verdana', 9, 'bold'),command=run_regression_call1)
+cmd_escolhemodelo_2dR1.grid(row=2,column=1)
+label_ins_insere1_editR = Label(frame_menu_inserir2_2dR, width=33, height=3,
+                      text ="\n\n Press the button to train the Model:\n", font=('verdana', 11), justify=CENTER)
+label_ins_insere1_editR.grid(row=3, column=0)
+cmd_escolhemodelo1_editR = Button(frame_menu_inserir2_2dR, text="Train Modelt",
+                                 font=('verdana', 9, 'bold'),command=run_regression_edit_call)
+cmd_escolhemodelo1_editR.grid(row=4,column=1)
+label_ins_insere1_editbR = Label(frame_menu_inserir2_2dR, width=33, height=3,
+                      text ="\n\n Press the button to change parameters:\n", font=('verdana', 11), justify=CENTER)
+label_ins_insere1_editbR.grid(row=5, column=0)
+cmd_escolhemodelo1b_editbR = Button(frame_menu_inserir2_2dR, text="Back",
+                                 font=('verdana', 9, 'bold'),command=menuinserir12dR)
+cmd_escolhemodelo1b_editbR.grid(row=6,column=1)
+
+#----------------------------------- Widgets Select model 2d AlexNet/ Lenet or Train --------------------
 
 label_ins1_insere2_2d = Label(frame_menu_inserir2_2d, width=33, height=2,
                       text ="Check the progress in the Console.", font=('verdana', 11, 'bold'), justify=CENTER)
@@ -1601,10 +1002,16 @@ label_ins_insere1_edit = Label(frame_menu_inserir2_2d, width=33, height=3,
                       text ="\n\n Press the button to train the Model:\n", font=('verdana', 11), justify=CENTER)
 label_ins_insere1_edit.grid(row=3, column=0)
 cmd_escolhemodelo1_edit = Button(frame_menu_inserir2_2d, text="Train the Model",
-                                 font=('verdana', 9, 'bold'),command=aux1_insere_convolucao)
+                                 font=('verdana', 9, 'bold'),command=runmodel_edit_2d_call)
 cmd_escolhemodelo1_edit.grid(row=4,column=1)
+label_ins_insere1_editb = Label(frame_menu_inserir2_2d, width=33, height=3,
+                      text ="\n\n Press the button to change parameters:\n", font=('verdana', 11), justify=CENTER)
+label_ins_insere1_editb.grid(row=5, column=0)
+cmd_escolhemodelo1b_editb = Button(frame_menu_inserir2_2d, text="Back",
+                                 font=('verdana', 9, 'bold'),command=menuinserir12d)
+cmd_escolhemodelo1b_editb.grid(row=6,column=1)
 
-#----------------------------------- Widgets Inserir dados para rede para 1 dimensão------------------------------------
+#------------------------------------------------Widgets Insert 2 dimensions------------------------------------------------------
 
 label_ins = Label(frame_menu_inserir1, width=33, height=2,
                   text ="Insert Parameters for 1 dimension", font=('verdana', 10, 'bold'), justify=CENTER)
@@ -1613,15 +1020,15 @@ label_ins0 = Label(frame_menu_inserir1, width=8, height=2,
 label_ins01 = Label(frame_menu_inserir1, width=15, height=1,
                   text ="Recomended:", font=('verdana', 8, 'bold'), justify=CENTER)
 label_ins1 = Label(frame_menu_inserir1, width=33, height=1,
-                  text ="Signals sampling frequency: ", font="verdana 10")
+                  text ="Input frequency: ", font="verdana 10")
 label_ins1_1 = Label(frame_menu_inserir1, width=10, height=1,
                   text ="200", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins2 = Label(frame_menu_inserir1, width=33, height=1,
-                  text ="Times should the algorithm run:", font="verdana 10")
+                  text ="Monte Carlo:", font="verdana 10")
 label_ins2_1 = Label(frame_menu_inserir1, width=10, height=1,
                   text ="20", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins4 = Label(frame_menu_inserir1, width=33, height=1,
-                  text ="Epochs update relevant:", font="verdana 10")
+                  text ="Lerning Rate:", font="verdana 10")
 label_ins4_1 = Label(frame_menu_inserir1, width=10, height=1,
                   text ="0.005", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins5 = Label(frame_menu_inserir1, width=33, height=1,
@@ -1633,10 +1040,14 @@ label_ins6 = Label(frame_menu_inserir1, width=33, height=1,
 label_ins6_1 = Label(frame_menu_inserir1, width=10, height=1,
                   text ="400", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins7 = Label(frame_menu_inserir1, width=33, height=1,
-                  text ="Value for the early stopping:", font="verdana 10")
+                  text ="Patience value:", font="verdana 10")
 label_ins7_1 = Label(frame_menu_inserir1, width=10, height=1,
                   text ="40", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins11 = Label(frame_menu_inserir1, width=33, height=1,
+label_ins7r1 = Label(frame_menu_inserir1, width=33, height=1,
+                  text ="Number of classes:", font="verdana 10")
+label_ins7_1r = Label(frame_menu_inserir1, width=10, height=1,
+                  text ="5", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins11r = Label(frame_menu_inserir1, width=33, height=1,
                   text ="                ", font="verdana 10")
 
 
@@ -1652,6 +1063,8 @@ texto_ins6 = Entry(frame_menu_inserir1, width=8, font="verdana 9", justify=CENTE
 texto_ins6.insert(END, '400')
 texto_ins7 = Entry(frame_menu_inserir1, width=8, font="verdana 9", justify=CENTER)
 texto_ins7.insert(END, '40')
+texto_ins8 = Entry(frame_menu_inserir1, width=8, font="verdana 9", justify=CENTER)
+texto_ins8.insert(END, '5')
 
 label_ins.grid(row=0, column=0)
 label_ins0.grid(row=0, column=1)
@@ -1667,8 +1080,10 @@ label_ins5_1.grid(row=5, column=2)
 label_ins6.grid(row=6, column=0)
 label_ins6_1.grid(row=6, column=2)
 label_ins7.grid(row=7, column=0)
+label_ins7r1.grid(row=8, column=0)
 label_ins7_1.grid(row=7, column=2)
-label_ins11.grid(row=8, column=0)
+label_ins7_1r.grid(row=8, column=2)
+label_ins11r.grid(row=9, column=0)
 
 texto_ins1.grid(row=1,column=1)
 texto_ins2.grid(row=2,column=1)
@@ -1676,12 +1091,14 @@ texto_ins4.grid(row=4,column=1)
 texto_ins5.grid(row=5,column=1)
 texto_ins6.grid(row=6,column=1)
 texto_ins7.grid(row=7,column=1)
+texto_ins8.grid(row=8,column=1)
 
 cmd_verificavalores = Button(frame_menu_inserir1, text="Insert/Save",
                              font=('verdana', 9, 'bold'),command=Insere)
 cmd_verificavalores.grid(row=11,column=1)
 
-#----------------------------------- Widgets Inserir dados para rede para 2 dimensões------------------------------------
+
+#----------------------------------- Widget Insert  parameters 2 dimensions------------------------------------------------------
 
 label_ins2d = Label(frame_menu_inserir12d, width=33, height=2,
                   text ="Insert Parameters for 2 dimensions", font=('verdana', 10, 'bold'), justify=CENTER)
@@ -1690,7 +1107,7 @@ label_ins02d = Label(frame_menu_inserir12d, width=8, height=2,
 label_ins012d = Label(frame_menu_inserir12d, width=15, height=1,
                   text ="Recomended:", font=('verdana', 8, 'bold'), justify=CENTER)
 label_ins22d = Label(frame_menu_inserir12d, width=33, height=1,
-                  text ="Initial learning rate:", font="verdana 10")
+                  text ="Learning rate:", font="verdana 10")
 label_ins2_12d = Label(frame_menu_inserir12d, width=10, height=1,
                   text ="0.001", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins42d = Label(frame_menu_inserir12d, width=33, height=1,
@@ -1702,7 +1119,7 @@ label_ins52d = Label(frame_menu_inserir12d, width=33, height=1,
 label_ins5_12d = Label(frame_menu_inserir12d, width=10, height=1,
                   text ="300", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins62d = Label(frame_menu_inserir12d, width=33, height=1,
-                  text ="Value for the early stopping:", font="verdana 10")
+                  text ="Patience value:", font="verdana 10")
 label_ins6_12d = Label(frame_menu_inserir12d, width=10, height=1,
                   text ="10", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins72d = Label(frame_menu_inserir12d, width=33, height=1,
@@ -1710,17 +1127,21 @@ label_ins72d = Label(frame_menu_inserir12d, width=33, height=1,
 label_ins7_12d = Label(frame_menu_inserir12d, width=10, height=1,
                   text ="50", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins02d1 = Label(frame_menu_inserir12d, width=33, height=1,
-                  text ="Image Shape - width:", font="verdana 10")
+                  text ="Input Shape - width:", font="verdana 10")
 label_ins7_12d1 = Label(frame_menu_inserir12d, width=10, height=1,
                   text ="28", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins02d2 = Label(frame_menu_inserir12d, width=33, height=1,
-                  text ="Image Shape - height:", font="verdana 10")
+                  text ="Input Shape - height:", font="verdana 10")
 label_ins7_12d2 = Label(frame_menu_inserir12d, width=10, height=1,
                   text ="28", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins02d3 = Label(frame_menu_inserir12d, width=33, height=1,
-                  text ="Image Shape - channels:", font="verdana 10")
+                  text ="Input Shape - channels:", font="verdana 10")
 label_ins7_12d3 = Label(frame_menu_inserir12d, width=10, height=1,
                   text ="1", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins02d31 = Label(frame_menu_inserir12d, width=33, height=1,
+                  text ="Number of classes:", font="verdana 10")
+label_ins7_12d31 = Label(frame_menu_inserir12d, width=10, height=1,
+                  text ="10", font=('verdana', 10, 'bold'), justify=CENTER)
 label_ins112d = Label(frame_menu_inserir12d, width=10, height=1,
                   text ="                ", font="verdana 10")
 
@@ -1740,6 +1161,8 @@ texto_ins92d = Entry(frame_menu_inserir12d, width=8, font="verdana 9", justify=C
 texto_ins92d.insert(END, '28')
 texto_ins02d = Entry(frame_menu_inserir12d, width=8, font="verdana 9", justify=CENTER)
 texto_ins02d.insert(END, '1')
+texto_ins02d1 = Entry(frame_menu_inserir12d, width=8, font="verdana 9", justify=CENTER)
+texto_ins02d1.insert(END, '10')
 
 label_ins2d.grid(row=0, column=0)
 label_ins02d.grid(row=0, column=1)
@@ -1757,9 +1180,11 @@ label_ins7_12d.grid(row=7, column=2)
 label_ins02d1.grid(row=8, column=0)
 label_ins02d2.grid(row=9, column=0)
 label_ins02d3.grid(row=10, column=0)
+label_ins02d31.grid(row=11, column=0)
 label_ins7_12d1.grid(row=8, column=2)
 label_ins7_12d2.grid(row=9, column=2)
 label_ins7_12d3.grid(row=10, column=2)
+label_ins7_12d31.grid(row=11, column=2)
 
 texto_ins22d.grid(row=2,column=1)
 texto_ins42d.grid(row=4,column=1)
@@ -1769,180 +1194,102 @@ texto_ins72d.grid(row=7,column=1)
 texto_ins82d.grid(row=8,column=1)
 texto_ins92d.grid(row=9,column=1)
 texto_ins02d.grid(row=10,column=1)
-label_ins112d.grid(row=11,column=1)
+texto_ins02d1.grid(row=11,column=1)
+label_ins112d.grid(row=12,column=1)
 
 cmd_verificavalores2d = Button(frame_menu_inserir12d, text="Insert/Save",
                              font=('verdana', 9, 'bold'),command=Insere2d)
-cmd_verificavalores2d.grid(row=12,column=1)
-
-#----------------------------------- Widgets Inserir camada de dense------------------------------------
-
-label_ins2ddense = Label(frame_menu_dense, width=33, height=2,
-                  text ="Insert dense layer", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins2ddense1 = Label(frame_menu_dense, width=15, height=2,
-                  text ="Values", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins02ddense = Label(frame_menu_dense, width=33, height=2,
-                  text ="Number of neurons:", font=('verdana', 10), justify=CENTER)
-label_ins2ddense = Label(frame_menu_dense, width=33, height=2,
-                  text ="Insert dense layer", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins2ddenseeb = Label(frame_menu_dense, width=33, height=2,
-                  text ="        ", font=('verdana', 10, 'bold'), justify=CENTER)
-
-label_ins2ddense1d = Label(frame_menu_dense, width=33, height=2,
-                  text ="Insert another layer", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins2ddenseeb2 = Label(frame_menu_dense, width=33, height=2,
-                  text ="        ", font=('verdana', 10, 'bold'), justify=CENTER)
-
-
-label_ins2ddense.grid(row=0, column=0)
-label_ins2ddense1.grid(row=0, column=1)
-label_ins02ddense.grid(row=1, column=0)
-label_ins2ddenseeb.grid(row=3, column=0)
-label_ins2ddense1d.grid(row=4, column=0)
-label_ins2ddenseeb2.grid(row=7, column=0)
-
-
-texto_number_of_neurons = Entry(frame_menu_dense, width=8, font="verdana 9", justify=CENTER)
-texto_number_of_neurons.grid(row=1,column=1)
-
-cmd_verificavalores2ddense = Button(frame_menu_dense, text="Insert",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_dense)
-cmd_verificavalores2ddense.grid(row=2,column=1)
-
-cmd_verificavalores2dpooling = Button(frame_menu_dense, text="Convolution",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_convolucao)
-cmd_verificavalores2dpooling.grid(row=6,column=1)
-cmd_verificavalores2dddense = Button(frame_menu_dense, text="Pooling",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_pooling)
-cmd_verificavalores2dddense.grid(row=6,column=0)
-
-cmd_verificavalores2dddense = Button(frame_menu_dense, text="Dense",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_dense)
-cmd_verificavalores2dddense.grid(row=10,column=0)
-cmd_verificavalores2dcddense = Button(frame_menu_dense, text="Run Model",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_convolucao)
-cmd_verificavalores2dcddense.grid(row=10,column=1)
-
-
-#----------------------------------- Widgets Inserir camada de pooling------------------------------------
-
-label_ins2dpooling = Label(frame_menu_pooling, width=33, height=2,
-                  text ="Insert pooling layer", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins02dpooling = Label(frame_menu_pooling, width=33, height=2,
-                  text ="Number of kernels:", font=('verdana', 10), justify=CENTER)
-label_ins22dpooling = Label(frame_menu_pooling, width=33, height=1,
-                  text ="Number os strides:", font="verdana 10")
-label_ins2dpooling1 = Label(frame_menu_pooling, width=15, height=2,
-                  text ="Values", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins2dpooling1c = Label(frame_menu_pooling, width=15, height=2,
-                  text ="     ", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins2dpooling1c1 = Label(frame_menu_pooling, width=15, height=2,
-                  text ="     ", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins2dpooling1c2 = Label(frame_menu_pooling, width=15, height=2,
-                  text ="     ", font=('verdana', 10, 'bold'), justify=CENTER)
-
-label_ins2dpooling1e = Label(frame_menu_pooling, width=33, height=2,
-                  text ="Insert another layer", font=('verdana', 10, 'bold'), justify=CENTER)
-
-
-label_ins2dpooling1.grid(row=0, column=1)
-label_ins2dpooling.grid(row=0, column=0)
-label_ins02dpooling.grid(row=1, column=0)
-label_ins22dpooling.grid(row=2, column=0)
-label_ins2dpooling1c.grid(row=4, column=0)
-label_ins2dpooling1c1.grid(row=6, column=0)
-label_ins2dpooling1e.grid(row=5, column=0)
-label_ins2dpooling1c2.grid(row=7, column=0)
-
-
-texto_number_of_kernels1 = Entry(frame_menu_pooling, width=8, font="verdana 9", justify=CENTER)
-texto_number_of_kernels1.grid(row=1,column=1)
-texto_number_of_strides = Entry(frame_menu_pooling, width=8, font="verdana 9", justify=CENTER)
-texto_number_of_strides.grid(row=2,column=1)
-
-
-cmd_verificavalores2dpooling = Button(frame_menu_pooling, text="Insert",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_pooling)
-cmd_verificavalores2dpooling.grid(row=3,column=1)
-
-cmd_verificavalores2dpooling = Button(frame_menu_pooling, text="Convolution",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_convolucao)
-cmd_verificavalores2dpooling.grid(row=6,column=1)
-cmd_verificavalores2dpooling = Button(frame_menu_pooling, text="Pooling",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_pooling)
-cmd_verificavalores2dpooling.grid(row=6,column=0)
-
-cmd_verificavalores2dpooling = Button(frame_menu_pooling, text="Dense",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_dense)
-cmd_verificavalores2dpooling.grid(row=10,column=0)
-cmd_verificavalores2dcpooling = Button(frame_menu_pooling, text="Run Model",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_convolucao)
-cmd_verificavalores2dcpooling.grid(row=10,column=1)
-
-
-#----------------------------------- Widgets Inserir camada de convolucao------------------------------------
-
-label_ins2dconvolucao = Label(frame_menu_convolucao, width=33, height=2,
-                  text ="Insert convolution Layer", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins2dconvolucaov = Label(frame_menu_convolucao, width=15, height=2,
-                  text ="Values", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins02dconvolucao = Label(frame_menu_convolucao, width=33, height=1,
-                  text ="Neurons (Filters):", font=('verdana', 9), justify=CENTER)
-label_ins22dconvolucao = Label(frame_menu_convolucao, width=33, height=1,
-                  text ="Kernel size:", font="verdana 10")
-label_ins42dconvolucao = Label(frame_menu_convolucao, width=33, height=1,
-                  text ="Number os strides:", font="verdana 10")
-label_ins52dconvolucao = Label(frame_menu_convolucao, width=33, height=1,
-                  text ="Padding (Same=0 | Valid=1):", font="verdana 10")
-label_ins52dconvolucaoe1 = Label(frame_menu_convolucao, width=33, height=1,
-                  text ="                   ", font="verdana 10")
-label_ins2dconvolucao1e = Label(frame_menu_convolucao, width=33, height=2,
-                  text ="Insert another layer", font=('verdana', 10, 'bold'), justify=CENTER)
-label_ins52dconvolucaoe13 = Label(frame_menu_convolucao, width=33, height=1,
-                  text ="                   ", font="verdana 10")
-
-label_ins2dconvolucaov.grid(row=0, column=1)
-label_ins2dconvolucao.grid(row=0, column=0)
-label_ins02dconvolucao.grid(row=1, column=0)
-label_ins22dconvolucao.grid(row=2, column=0)
-label_ins42dconvolucao.grid(row=3, column=0)
-label_ins52dconvolucao.grid(row=4, column=0)
-label_ins52dconvolucaoe1.grid(row=5, column=0)
-label_ins2dconvolucao1e.grid(row=7, column=0)
-label_ins52dconvolucaoe13.grid(row=9, column=0)
-
-texto_number_of_neurons2 = Entry(frame_menu_convolucao, width=8, font="verdana 9", justify=CENTER)
-texto_number_of_neurons2.grid(row=1,column=1)
-texto_kernel_size = Entry(frame_menu_convolucao, width=8, font="verdana 9", justify=CENTER)
-texto_kernel_size.grid(row=2,column=1)
-texto_strides = Entry(frame_menu_convolucao, width=8, font="verdana 9", justify=CENTER)
-texto_strides.grid(row=3,column=1)
-texto_padding = Entry(frame_menu_convolucao, width=8, font="verdana 9", justify=CENTER)
-texto_padding.grid(row=4,column=1)
+cmd_verificavalores2d.grid(row=13,column=1)
 
 
 
-cmd_verificavalores2dconvolucao = Button(frame_menu_convolucao, text="Insert",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_convolucao)
-cmd_verificavalores2dconvolucao.grid(row=6,column=1)
-cmd_verificavalores2dconvolucao = Button(frame_menu_convolucao, text="Convolution",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_convolucao)
-cmd_verificavalores2dconvolucao.grid(row=8,column=1)
-cmd_verificavalores2dconvolucao = Button(frame_menu_convolucao, text="Pooling",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_pooling)
-cmd_verificavalores2dconvolucao.grid(row=8,column=0)
+#----------------------------------- Widgets Insert parameters 2 dimensons Regression------------------------------------
 
-cmd_verificavalores2dconvolucao = Button(frame_menu_convolucao, text="Dense",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_dense)
-cmd_verificavalores2dconvolucao.grid(row=10,column=0)
-cmd_verificavalores2dconvolucao = Button(frame_menu_convolucao, text="Run Model",
-                             font=('verdana', 9, 'bold'),command=aux1_insere_convolucao)
-cmd_verificavalores2dconvolucao.grid(row=10,column=1)
+label_ins2dR = Label(frame_menu_inserir12dR, width=33, height=2,
+                  text ="Insert Parameters for Regression", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins02dR = Label(frame_menu_inserir12dR, width=8, height=2,
+                  text ="Values:", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins012dR = Label(frame_menu_inserir12dR, width=15, height=1,
+                  text ="Recomended:", font=('verdana', 8, 'bold'), justify=CENTER)
+label_ins22dR = Label(frame_menu_inserir12dR, width=33, height=1,
+                  text ="Learning rate:", font="verdana 10")
+label_ins2_12dR = Label(frame_menu_inserir12dR, width=10, height=1,
+                  text ="0.001", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins42dR = Label(frame_menu_inserir12dR, width=33, height=1,
+                  text ="Batch Size:", font="verdana 10")
+label_ins4_12dR = Label(frame_menu_inserir12dR, width=10, height=1,
+                  text ="16...128", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins52dR = Label(frame_menu_inserir12dR, width=33, height=1,
+                  text ="Maximun number of epoch:", font="verdana 10")
+label_ins5_12dR = Label(frame_menu_inserir12dR, width=10, height=1,
+                  text ="300", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins62dR = Label(frame_menu_inserir12dR, width=33, height=1,
+                  text ="Patience value:", font="verdana 10")
+label_ins6_12dR = Label(frame_menu_inserir12dR, width=10, height=1,
+                  text ="10", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins72dR = Label(frame_menu_inserir12dR, width=33, height=1,
+                  text ="Monte Carlo Value:", font="verdana 10")
+label_ins7_12dR = Label(frame_menu_inserir12dR, width=10, height=1,
+                  text ="50", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins02d2Ri = Label(frame_menu_inserir12dR, width=33, height=1,
+                  text ="Input Shape:", font="verdana 10")
+label_ins7_12d31R = Label(frame_menu_inserir12dR, width=10, height=1,
+                  text ="13", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins02d2Rir = Label(frame_menu_inserir12dR, width=33, height=1,
+                  text ="Number of classes:", font="verdana 10")
+label_ins7_12d31Rr = Label(frame_menu_inserir12dR, width=10, height=1,
+                  text ="1", font=('verdana', 10, 'bold'), justify=CENTER)
+label_ins112dR = Label(frame_menu_inserir12dR, width=10, height=1,
+                  text ="                ", font="verdana 10")
 
+texto_ins22dR = Entry(frame_menu_inserir12dR, width=8, font="verdana 9", justify=CENTER)
+texto_ins22dR.insert(END, '0.001')
+texto_ins42dR = Entry(frame_menu_inserir12dR, width=8, font="verdana 9", justify=CENTER)
+texto_ins42dR.insert(END, '16')
+texto_ins52dR = Entry(frame_menu_inserir12dR, width=8, font="verdana 9", justify=CENTER)
+texto_ins52dR.insert(END, '300')
+texto_ins62dR = Entry(frame_menu_inserir12dR, width=8, font="verdana 9", justify=CENTER)
+texto_ins62dR.insert(END, '10')
+texto_ins72dR = Entry(frame_menu_inserir12dR, width=8, font="verdana 9", justify=CENTER)
+texto_ins72dR.insert(END, '50')
+texto_ins02d1R = Entry(frame_menu_inserir12dR, width=8, font="verdana 9", justify=CENTER)
+texto_ins02d1R.insert(END, '13')
+texto_ins02d1R1 = Entry(frame_menu_inserir12dR, width=8, font="verdana 9", justify=CENTER)
+texto_ins02d1R1.insert(END, '1')
+
+label_ins2dR.grid(row=0, column=0)
+label_ins02dR.grid(row=0, column=1)
+label_ins012dR.grid(row=0, column=2)
+label_ins22dR.grid(row=2, column=0)
+label_ins2_12dR.grid(row=2, column=2)
+label_ins42dR.grid(row=4, column=0)
+label_ins4_12dR.grid(row=4, column=2)
+label_ins52dR.grid(row=5, column=0)
+label_ins5_12dR.grid(row=5, column=2)
+label_ins62dR.grid(row=6, column=0)
+label_ins6_12dR.grid(row=6, column=2)
+label_ins72dR.grid(row=7, column=0)
+label_ins7_12dR.grid(row=7, column=2)
+label_ins02d2Ri.grid(row=11, column=0)
+label_ins02d2Rir.grid(row=12, column=0)
+label_ins7_12d31R.grid(row=11, column=2)
+label_ins7_12d31Rr.grid(row=12, column=2)
+
+
+texto_ins22dR.grid(row=2,column=1)
+texto_ins42dR.grid(row=4,column=1)
+texto_ins52dR.grid(row=5,column=1)
+texto_ins62dR.grid(row=6,column=1)
+texto_ins72dR.grid(row=7,column=1)
+texto_ins02d1R.grid(row=11,column=1)
+texto_ins02d1R1.grid(row=12,column=1)
+label_ins112dR.grid(row=13,column=1)
+
+cmd_verificavalores2dR = Button(frame_menu_inserir12dR, text="Insert/Save",
+                             font=('verdana', 9, 'bold'),command=Insere2dR)
+cmd_verificavalores2dR.grid(row=13,column=1)
 
 #------------------------------------------------------------ 
 #Cancela o redimensionamento
 menu_inicial.resizable(False, False)
 menu_inicial.mainloop()
-
-

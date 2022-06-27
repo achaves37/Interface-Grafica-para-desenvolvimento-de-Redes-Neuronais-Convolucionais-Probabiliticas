@@ -15,19 +15,14 @@ Interface.py -> Principal Script.
 
 RunModel1d.py -> Contains the models Lenet and Alexnet for the data of 1 dimension.
 
-RunModel2d .py-> Contains the Lenet and Alexnet.py models for the data of 2 dimensions.
-
-RunEditModel1d.py -> Contains the editable model for the 1-dimensional data.
-
-RunEditModel2d.py -> Contains the editable model for the data of 2 dimensions
-
-Results1d.py - > Script for visualization of data of 1 dimension.
-
 Results2d.py - > Script for visualization of data of 2 dimensions.
 
-Folders AlexNet1d | LeNet1d | Edit1d - Contains the results of the 1-dimensional data sets.
+Folders Results
 
-Folder AlexNet2d | LeNet2d | Edit2d - Contains the results of the 2 dimensional data sets.
+
+If you want to install some modolus/library write the script:
+
+pip install -r .\requirements.txt
 
 
 Software:
